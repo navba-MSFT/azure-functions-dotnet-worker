@@ -51,6 +51,9 @@ namespace Microsoft.Extensions.DependencyInjection
             // Invocation Features
             services.TryAddSingleton<IInvocationFeaturesFactory, DefaultInvocationFeaturesFactory>();
             services.AddSingleton<IInvocationFeatureProvider, DefaultBindingFeatureProvider>();
+           
+            // Binding converter setup
+            services.AddSingleton<IBindingConverterFactory, BindingConverterFactory>();
 
             // Output Bindings
             services.AddSingleton<IOutputBindingsInfoProvider, DefaultOutputBindingsInfoProvider>();
@@ -74,6 +77,26 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             return new FunctionsWorkerApplicationBuilder(services); ;
+        }
+
+        /// <summary>
+        /// Adds the built-in binding converters to worker options.
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
+        internal static IServiceCollection AddDefaultBindingConvertersToWorkerOptions(this IServiceCollection services)
+        {
+            return services.Configure<WorkerOptions>((workerOption) =>
+            {
+                workerOption.BindingConverters.Add(typeof(FunctionContextConverter));
+                workerOption.BindingConverters.Add(typeof(TypeConverter));
+                workerOption.BindingConverters.Add(typeof(GuidConverter));
+                workerOption.BindingConverters.Add(typeof(MemoryConverter));
+                workerOption.BindingConverters.Add(typeof(StringToByteConverter));
+                workerOption.BindingConverters.Add(typeof(JsonPocoConverter));
+                workerOption.BindingConverters.Add(typeof(ArrayConverter));
+            });
+
         }
 
         internal static IServiceCollection RegisterDefaultConverters(this IServiceCollection services)

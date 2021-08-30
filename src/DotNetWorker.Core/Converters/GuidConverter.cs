@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Threading.Tasks;
 
 namespace Microsoft.Azure.Functions.Worker.Converters
 {
@@ -10,20 +11,17 @@ namespace Microsoft.Azure.Functions.Worker.Converters
     /// </summary>
     internal class GuidConverter : IConverter
     {
-        public bool TryConvert(ConverterContext context, out object? target)
+        public ValueTask<BindingResult> ConvertAsync(ConverterContext context)
         {
-            target = default;
-
             if (context.Parameter.Type == typeof(Guid) || context.Parameter.Type == typeof(Guid?))
             {
                 if (context.Source is string sourceString && Guid.TryParse(sourceString, out Guid parsedGuid))
                 {
-                    target = parsedGuid;
-                    return true;
+                    return new ValueTask<BindingResult>(BindingResult.Success(parsedGuid));
                 }
             }
 
-            return false;
+            return new ValueTask<BindingResult>(BindingResult.Failed());
         }
     }
 }

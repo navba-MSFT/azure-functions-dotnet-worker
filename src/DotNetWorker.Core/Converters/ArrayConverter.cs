@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Microsoft.Azure.Functions.Worker.Converters
 {
@@ -11,9 +12,9 @@ namespace Microsoft.Azure.Functions.Worker.Converters
     internal class ArrayConverter : IConverter
     {
         // Convert IEnumerable to array
-        public bool TryConvert(ConverterContext context, out object? target)
+        public ValueTask<BindingResult> ConvertAsync(ConverterContext context)
         {
-            target = null;
+            object? target = null;
             // Ensure requested type is an array
             if (context.Parameter.Type.IsArray)
             {
@@ -39,7 +40,12 @@ namespace Microsoft.Azure.Functions.Worker.Converters
                 }
             }
 
-            return target is not null;
+            if (target is not null)
+            {
+                return new ValueTask<BindingResult>(BindingResult.Success(target));
+            }
+
+            return new ValueTask<BindingResult>(BindingResult.Failed());
         }
 
         private static object? GetBinaryData(IEnumerable<ReadOnlyMemory<byte>> source, Type targetType)

@@ -3,33 +3,32 @@
 
 using System;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Microsoft.Azure.Functions.Worker.Converters
 {
     internal class MemoryConverter : IConverter
     {
-        public bool TryConvert(ConverterContext context, out object? target)
+        public ValueTask<BindingResult> ConvertAsync(ConverterContext context)
         {
-            target = default;
-
             if (context.Source is not ReadOnlyMemory<byte> sourceMemory)
             {
-                return false;
+                return new ValueTask<BindingResult>(BindingResult.Failed());
             }
 
             if (context.Parameter.Type.IsAssignableFrom(typeof(string)))
             {
-                target = Encoding.UTF8.GetString(sourceMemory.Span);
-                return true;
+                var target = Encoding.UTF8.GetString(sourceMemory.Span);
+                return new ValueTask<BindingResult>(BindingResult.Success(target));
             }
 
             if (context.Parameter.Type.IsAssignableFrom(typeof(byte[])))
             {
-                target = sourceMemory.ToArray();
-                return true;
+                var target = sourceMemory.ToArray();
+                return new ValueTask<BindingResult>(BindingResult.Success(target));
             }
 
-            return false;
+            return new ValueTask<BindingResult>(BindingResult.Failed());
         }
     }
 }

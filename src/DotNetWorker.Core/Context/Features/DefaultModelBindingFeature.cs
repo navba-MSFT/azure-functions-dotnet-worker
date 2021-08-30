@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker.Converters;
 using Microsoft.Azure.Functions.Worker.Diagnostics.Exceptions;
 
@@ -22,7 +22,7 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
 
         public object?[]? InputArguments => _parameterValues;
 
-        public object?[] BindFunctionInput(FunctionContext context)
+        public async ValueTask<object?[]> BindFunctionInputAsync(FunctionContext context)
         {
             if (_inputBound)
             {
@@ -48,9 +48,11 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
 
                 var converterContext = new DefaultConverterContext(param, source, context);
 
-                if (TryConvert(converterContext, out object? target))
+                var bindingResult = await TryConvertAsync(converterContext);
+
+                if (bindingResult.IsSuccess)
                 {
-                    _parameterValues[i] = target;
+                    _parameterValues[i] = bindingResult.Model;
                 }
                 else if (source is not null)
                 {
@@ -73,23 +75,21 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
             return _parameterValues;
         }
 
-        internal bool TryConvert(ConverterContext context, out object? target)
+        internal async ValueTask<BindingResult> TryConvertAsync(ConverterContext context)
         {
-            target = null;
-
             // The first converter to successfully convert wins.
             // For example, this allows a converter that parses JSON strings to return false if the
             // string is not valid JSON. This manager will then continue with the next matching provider.
             foreach (var converter in _converters)
             {
-                if (converter.TryConvert(context, out object? targetObj))
+                var bindingResult = await converter.ConvertAsync(context);
+                if (bindingResult.IsSuccess)
                 {
-                    target = targetObj;
-                    return true;
+                    return bindingResult;
                 }
             }
 
-            return false;
+            return default;
         }
     }
 }

@@ -11,20 +11,17 @@ namespace FunctionApp
     public static class Function4
     {
         [Function("Function4")]
-        public static HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req, FunctionContext executionContext)
+        public static HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req, 
+            FunctionContext executionContext,
+            // [MyConverter]
+            ProductViewModel productViewModel)
         {
-            var logger = executionContext.GetLogger("FunctionApp.Function4");
-
-            logger.LogInformation("message logged");
-
             var response = req.CreateResponse(HttpStatusCode.OK);
 
-            response.Headers.Add("Date", "Mon, 18 Jul 2016 16:06:00 GMT");
             response.Headers.Add("Content-Type", "text/html; charset=utf-8");
-            response.WriteString("Welcome to .NET 5!!");
+            response.WriteString($"Product name:{productViewModel.Name}, Price:{productViewModel.Price}");
 
             return response;
         }
     }
-
 }

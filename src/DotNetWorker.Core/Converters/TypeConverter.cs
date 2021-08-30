@@ -2,23 +2,24 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Threading.Tasks;
 
 namespace Microsoft.Azure.Functions.Worker.Converters
 {
     internal class TypeConverter : IConverter
     {
-        public bool TryConvert(ConverterContext context, out object? target)
-        {
+        public ValueTask<BindingResult> ConvertAsync(ConverterContext context)
+        {    
             Type? sourceType = context.Source?.GetType();
+
             if (sourceType is not null &&
                 context.Parameter.Type.IsAssignableFrom(sourceType))
             {
-                target = context.Source;
-                return true;
+                var bindingResult = BindingResult.Success(context.Source);
+                return new ValueTask<BindingResult>(bindingResult);
             }
-
-            target = default;
-            return false;
+                        
+            return new ValueTask<BindingResult>(BindingResult.Failed());
         }
     }
 }

@@ -11,17 +11,25 @@ namespace FunctionApp
     {
         static async Task Main(string[] args)
         {
-// #if DEBUG
-//          Debugger.Launch();
-// #endif
+            // #if DEBUG
+            //          Debugger.Launch();
+            // #endif
             //<docsnippet_startup>
             var host = new HostBuilder()
                 //<docsnippet_configure_defaults>
-                .ConfigureFunctionsWorkerDefaults()
+                .ConfigureFunctionsWorkerDefaults((hostBuilderContext, functionWorkerAppBuilder) =>
+                {
+
+                }, (workerOptions) =>
+                {
+                    //workerOptions.BindingConverters.Clear();
+                    workerOptions.BindingConverters.Insert(0,typeof(MyCustomConverter1));
+                })
                 //</docsnippet_configure_defaults>
                 //<docsnippet_dependency_injection>
                 .ConfigureServices(s =>
                 {
+                    s.AddHttpClient();
                     s.AddSingleton<IHttpResponderService, DefaultHttpResponderService>();
                 })
                 //</docsnippet_dependency_injection>

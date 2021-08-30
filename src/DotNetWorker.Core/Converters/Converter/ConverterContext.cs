@@ -5,7 +5,7 @@ using Microsoft.Azure.Functions.Worker.Pipeline;
 
 namespace Microsoft.Azure.Functions.Worker.Converters
 {
-    internal abstract class ConverterContext
+    public abstract class ConverterContext
     {
         public abstract FunctionParameter Parameter { get; set; }
 

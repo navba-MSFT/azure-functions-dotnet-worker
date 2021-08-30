@@ -12,9 +12,9 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
         private static readonly Type _featureType = typeof(IModelBindingFeature);
         private readonly IEnumerable<IConverter> _converters;
 
-        public DefaultBindingFeatureProvider(IEnumerable<IConverter> converters)
+        public DefaultBindingFeatureProvider(IBindingConverterFactory converterFactory)
         {
-            _converters = converters ?? throw new ArgumentNullException(nameof(converters));
+            _converters = converterFactory?.CreateConverters() ?? throw new ArgumentNullException(nameof(converterFactory));
         }
 
         public bool TryCreate(Type type, out object? feature)
