@@ -2,10 +2,14 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker.Converters;
+using Microsoft.Azure.Functions.Worker.Core.Converters.Converter;
 using Microsoft.Azure.Functions.Worker.Diagnostics.Exceptions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Azure.Functions.Worker.Context.Features
 {
@@ -75,8 +79,39 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
             return _parameterValues;
         }
 
+        // to do: This must be static / singleton (DefaultModelBinding feature instance is created per invocation) 
+        ConcurrentDictionary<Type, IConverter> parameterTypeToConverterCache = new ConcurrentDictionary<Type, IConverter>();
+
         internal async ValueTask<BindingResult> TryConvertAsync(ConverterContext context)
         {
+            var binderType = typeof(BindingConverterAttribute);  //cache this
+
+            var binderAttr = context.Parameter.Type.GetCustomAttributes(binderType, inherit: true).FirstOrDefault();
+            
+            if (binderAttr != null)
+            {
+                var bb = (BindingConverterAttribute) binderAttr;
+                var converterType = bb.ConverterType;
+
+                IConverter? converter;
+                if(parameterTypeToConverterCache.TryGetValue(converterType, out var converterFromCache))
+                {
+                    converter = converterFromCache;
+                }
+                else
+                {
+                    converter = (IConverter)ActivatorUtilities.CreateInstance(context.FunctionContext.InstanceServices, converterType);
+                    parameterTypeToConverterCache[converterType] = converter;
+                }
+
+                // use this converter
+                var bindingResult = await converter.ConvertAsync(context);
+                return bindingResult;
+            }
+            
+           
+
+
             // The first converter to successfully convert wins.
             // For example, this allows a converter that parses JSON strings to return false if the
             // string is not valid JSON. This manager will then continue with the next matching provider.

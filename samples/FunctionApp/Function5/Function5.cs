@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System;
 using System.Net;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -20,11 +21,36 @@ namespace FunctionApp
         }
 
         [Function(nameof(Function5))]
-        public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req)
+        public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req, 
+            FunctionContext executionContext,
+            CustomerViewModel customer)
         {
-            _logger.LogInformation("message logged");
+            executionContext.BindingContext.BindingData.TryGetValue("name", out var nameValueObj);
 
-            return _responderService.ProcessRequest(req);
+            //string msg = "";
+            //if (nameValueObj != null)
+            //{
+            //    msg += ": " + (string)nameValueObj;
+
+            //    if (msg.Contains("throw"))
+            //        throw new InvalidOperationException("Throwing...");
+
+            //    try
+            //    {
+            //        var t = msg.Substring(4, 5);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        _logger.LogError(ex, "ERROR in MYCODE:" + ex.Message);
+            //    }
+            //}
+
+            //_logger.LogInformation("Name received: : " + msg);
+
+            var response = req.CreateResponse(HttpStatusCode.OK);
+            response.WriteString("customer view model received: " + customer?.Id);
+
+            return response;
         }
     }
 
@@ -43,7 +69,7 @@ namespace FunctionApp
         public HttpResponseData ProcessRequest(HttpRequestData httpRequest)
         {
             var response = httpRequest.CreateResponse(HttpStatusCode.OK);
-           
+
             response.Headers.Add("Date", "Mon, 18 Jul 2016 16:06:00 GMT");
             response.Headers.Add("Content-Type", "text/html; charset=utf-8");
             response.WriteString("Welcome to .NET 5!!");

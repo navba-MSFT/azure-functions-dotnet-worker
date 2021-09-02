@@ -13,13 +13,13 @@ namespace FunctionApp
         [Function("Function4")]
         public static HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req, 
             FunctionContext executionContext,
-            // [MyConverter]
+            //[MyBinder]
             ProductViewModel productViewModel)
         {
             var response = req.CreateResponse(HttpStatusCode.OK);
 
             response.Headers.Add("Content-Type", "text/html; charset=utf-8");
-            response.WriteString($"Product name:{productViewModel.Name}, Price:{productViewModel.Price}");
+            response.WriteString($"Product name:{productViewModel?.Name}, Price:{productViewModel?.Price}");
 
             return response;
         }

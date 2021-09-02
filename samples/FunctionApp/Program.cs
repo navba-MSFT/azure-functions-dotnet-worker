@@ -23,7 +23,7 @@ namespace FunctionApp
                 }, (workerOptions) =>
                 {
                     //workerOptions.BindingConverters.Clear();
-                    workerOptions.BindingConverters.Insert(0,typeof(MyCustomConverter1));
+                   // workerOptions.BindingConverters.Insert(0,typeof(MyCustomConverter1));
                 })
                 //</docsnippet_configure_defaults>
                 //<docsnippet_dependency_injection>
