@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace FunctionApp
 {
+    [BindingConverter(typeof(MyProductVmCustomConverter))]
     public sealed class ProductViewModel
     {
         public int Id { get; set; }

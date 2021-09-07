@@ -27,25 +27,6 @@ namespace FunctionApp
         {
             executionContext.BindingContext.BindingData.TryGetValue("name", out var nameValueObj);
 
-            //string msg = "";
-            //if (nameValueObj != null)
-            //{
-            //    msg += ": " + (string)nameValueObj;
-
-            //    if (msg.Contains("throw"))
-            //        throw new InvalidOperationException("Throwing...");
-
-            //    try
-            //    {
-            //        var t = msg.Substring(4, 5);
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        _logger.LogError(ex, "ERROR in MYCODE:" + ex.Message);
-            //    }
-            //}
-
-            //_logger.LogInformation("Name received: : " + msg);
 
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.WriteString("customer view model received: " + customer?.Id);

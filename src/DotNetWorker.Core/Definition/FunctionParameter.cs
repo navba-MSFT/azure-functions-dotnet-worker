@@ -4,6 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
+using System.Reflection;
+using Microsoft.Azure.Functions.Worker.Core.Converters.Converter;
 
 namespace Microsoft.Azure.Functions.Worker
 {
@@ -35,6 +38,23 @@ namespace Microsoft.Azure.Functions.Worker
             Properties = properties ?? throw new ArgumentNullException(nameof(properties));
         }
 
+        public FunctionParameter(string name, Type type, IEnumerable<CustomAttributeData> customAttributes) : this(name, type)
+        {                       
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Type = type ?? throw new ArgumentNullException(nameof(type));
+            Properties = ImmutableDictionary<string, object>.Empty;
+
+            var bindingConverterAttributeData = customAttributes.FirstOrDefault( a=> a.AttributeType == typeof(BindingConverterAttribute));
+            if (bindingConverterAttributeData != null)
+            {
+                CustomAttributeTypedArgument customConverter = bindingConverterAttributeData.ConstructorArguments.FirstOrDefault(arg => arg.ArgumentType == typeof(Type));
+                if (customConverter != null)
+                {
+                    this.BindingConverterType = (Type) customConverter.Value;
+                }
+            }
+        }
+
         /// <summary>
         /// Gets the parameter name.
         /// </summary>
@@ -49,5 +69,7 @@ namespace Microsoft.Azure.Functions.Worker
         /// A dictionary holding properties of this parameter.
         /// </summary>
         public IReadOnlyDictionary<string, object> Properties { get; }
+
+        public Type? BindingConverterType { get; }
     }
 }

@@ -69,7 +69,7 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
                     errors.Add($"Cannot convert input parameter '{param.Name}' to type '{param.Type.FullName}' from type '{source.GetType().FullName}'.");
                 }
             }
-            
+
             // found errors
             if (errors is not null)
             {
@@ -79,39 +79,20 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
             return _parameterValues;
         }
 
-        // to do: This must be static / singleton (DefaultModelBinding feature instance is created per invocation) 
-        ConcurrentDictionary<Type, IConverter> parameterTypeToConverterCache = new ConcurrentDictionary<Type, IConverter>();
+        // to do: DI Inject this via another class (BinderCacheProvider ?)
+        static readonly ConcurrentDictionary<Type, IConverter> binderTypeToConverterCache = new ConcurrentDictionary<Type, IConverter>();
 
         internal async ValueTask<BindingResult> TryConvertAsync(ConverterContext context)
         {
-            var binderType = typeof(BindingConverterAttribute);  //cache this
+            IConverter? parameterSpecificConverter = GetConverterSpecificToParameter(context);
 
-            var binderAttr = context.Parameter.Type.GetCustomAttributes(binderType, inherit: true).FirstOrDefault();
-            
-            if (binderAttr != null)
+            if (parameterSpecificConverter!= null)
             {
-                var bb = (BindingConverterAttribute) binderAttr;
-                var converterType = bb.ConverterType;
-
-                IConverter? converter;
-                if(parameterTypeToConverterCache.TryGetValue(converterType, out var converterFromCache))
-                {
-                    converter = converterFromCache;
-                }
-                else
-                {
-                    converter = (IConverter)ActivatorUtilities.CreateInstance(context.FunctionContext.InstanceServices, converterType);
-                    parameterTypeToConverterCache[converterType] = converter;
-                }
-
-                // use this converter
-                var bindingResult = await converter.ConvertAsync(context);
+                var bindingResult = await parameterSpecificConverter.ConvertAsync(context);
                 return bindingResult;
             }
-            
-           
 
-
+            // Use the globally registered converters
             // The first converter to successfully convert wins.
             // For example, this allows a converter that parses JSON strings to return false if the
             // string is not valid JSON. This manager will then continue with the next matching provider.
@@ -125,6 +106,48 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
             }
 
             return default;
+        }
+
+        private static IConverter? GetConverterSpecificToParameter(ConverterContext context)
+        {
+            // Check a converter is specified on the method parameter. If yes,use that.
+            // ex: [BindingConverter(typeof(MyComplexCustomerConverter))] CustomerViewModel customerViewModel
+
+            Type? converterType = default;
+            IConverter? parameterSpecificConverter = default;
+
+            var bindingConverterTypeFromParam = context.Parameter.BindingConverterType;
+            if (bindingConverterTypeFromParam != null)
+            {
+                converterType = bindingConverterTypeFromParam;
+            }
+            else
+            {
+                // check the class used as method parameter has a BindingConverter attribute decoration.
+                var binderType = typeof(BindingConverterAttribute);
+                var binderAttr = context.Parameter.Type.GetCustomAttributes(binderType, inherit: true).FirstOrDefault();
+
+                if (binderAttr != null)
+                {
+                    converterType = ((BindingConverterAttribute)binderAttr).ConverterType;
+                }
+            }
+          
+            if (converterType != null)
+            {
+                if (binderTypeToConverterCache.TryGetValue(converterType, out var converterFromCache))
+                {
+                    parameterSpecificConverter = converterFromCache;
+                }
+                else
+                {
+                    parameterSpecificConverter = (IConverter)ActivatorUtilities.CreateInstance(context.FunctionContext.InstanceServices, converterType);
+                    binderTypeToConverterCache[converterType] = parameterSpecificConverter;
+                }
+
+            }
+
+            return parameterSpecificConverter;
         }
     }
 }
