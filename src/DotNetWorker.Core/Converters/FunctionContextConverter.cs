@@ -7,15 +7,15 @@ namespace Microsoft.Azure.Functions.Worker.Converters
 {
     internal class FunctionContextConverter : IConverter
     {
-        public ValueTask<BindingResult> ConvertAsync(ConverterContext context)
+        public ValueTask<ParameterBindingResult> ConvertAsync(ConverterContext context)
         {
             // Special handling for the context.
             if (context.Parameter.Type == typeof(FunctionContext))
             {
-                return new ValueTask<BindingResult>(BindingResult.Success(context.FunctionContext));
+                return new ValueTask<ParameterBindingResult>(ParameterBindingResult.Success(context.FunctionContext));
             }
 
-            return new ValueTask<BindingResult>(BindingResult.Failed());
+            return new ValueTask<ParameterBindingResult>(ParameterBindingResult.Failed());
         }
     }
 }

@@ -29,11 +29,11 @@ namespace Microsoft.Azure.Functions.Worker.Converters
             _serializer = options.Value.Serializer;
         }
 
-        public async ValueTask<BindingResult> ConvertAsync(ConverterContext context)
+        public async ValueTask<ParameterBindingResult> ConvertAsync(ConverterContext context)
         {
             if (context.Parameter.Type == typeof(string))
             {
-                return await new ValueTask<BindingResult>(BindingResult.Failed());
+                return await new ValueTask<ParameterBindingResult>(ParameterBindingResult.Failed());
             }
 
             byte[]? bytes = null;
@@ -49,13 +49,13 @@ namespace Microsoft.Azure.Functions.Worker.Converters
 
             if (bytes == null)
             {
-                return await new ValueTask<BindingResult>(BindingResult.Failed());
+                return await new ValueTask<ParameterBindingResult>(ParameterBindingResult.Failed());
             }
 
             var deserializationResult = await TryDeserialize(bytes, context.Parameter.Type);
-            var bindingResult = new BindingResult(deserializationResult.Success, deserializationResult.DeserializedObject);
+            var bindingResult = new ParameterBindingResult(deserializationResult.Success, deserializationResult.DeserializedObject);
             
-            return await new ValueTask<BindingResult>(bindingResult);
+            return await new ValueTask<ParameterBindingResult>(bindingResult);
         }
 
         private async Task<(bool Success,object? DeserializedObject)> TryDeserialize(byte[] bytes, Type type)

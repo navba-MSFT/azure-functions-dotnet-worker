@@ -28,7 +28,7 @@ namespace FunctionApp
         [Function("Function7")]
         public static HttpResponseData RunComplex([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req, 
             FunctionContext executionContext,
-            [BindingConverter(typeof(MyComplexCustomerConverter))] CustomerViewModel customerViewModel)
+            [ParameterBinder(typeof(MyComplexCustomerConverter))] CustomerViewModel customerViewModel)
         {
             var response = req.CreateResponse(HttpStatusCode.OK);
 

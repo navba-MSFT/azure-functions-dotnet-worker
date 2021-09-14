@@ -44,7 +44,7 @@ namespace Microsoft.Azure.Functions.Worker
             Type = type ?? throw new ArgumentNullException(nameof(type));
             Properties = ImmutableDictionary<string, object>.Empty;
 
-            var bindingConverterAttributeData = customAttributes.FirstOrDefault( a=> a.AttributeType == typeof(BindingConverterAttribute));
+            var bindingConverterAttributeData = customAttributes.FirstOrDefault( a=> a.AttributeType == typeof(ParameterBinderAttribute));
             if (bindingConverterAttributeData != null)
             {
                 CustomAttributeTypedArgument customConverter = bindingConverterAttributeData.ConstructorArguments.FirstOrDefault(arg => arg.ArgumentType == typeof(Type));

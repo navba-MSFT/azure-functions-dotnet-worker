@@ -4,6 +4,7 @@
 using System;
 using System.Net;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Core.Converters.Converter;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
@@ -23,14 +24,10 @@ namespace FunctionApp
         [Function(nameof(Function5))]
         public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req, 
             FunctionContext executionContext,
-            CustomerViewModel customer)
+            [ParameterBinder(typeof(MyCustomerConverter))] CustomerViewModel customer)
         {
-            executionContext.BindingContext.BindingData.TryGetValue("name", out var nameValueObj);
-
-
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.WriteString("customer view model received: " + customer?.Id);
-
             return response;
         }
     }

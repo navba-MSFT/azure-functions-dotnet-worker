@@ -18,11 +18,11 @@ namespace Microsoft.Azure.Functions.Worker.Core.Converters.Converter
 
         AllowMultiple = false,
         Inherited = true)]
-    public class BindingConverterAttribute : Attribute
+    public class ParameterBinderAttribute : Attribute
     {
         public Type ConverterType { get; }
 
-        public BindingConverterAttribute(Type converterType)
+        public ParameterBinderAttribute(Type converterType)
         {
             if (converterType == null)
             {

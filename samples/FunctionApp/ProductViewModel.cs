@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace FunctionApp
 {
-    [BindingConverter(typeof(MyProductVmCustomConverter))]
+    [ParameterBinder(typeof(MyProductVmCustomConverter))]
     public sealed class ProductViewModel
     {
         public int Id { get; set; }
@@ -26,12 +26,12 @@ namespace FunctionApp
             this._logger = logger;
         }
 
-        public async ValueTask<BindingResult> ConvertAsync(ConverterContext context)
+        public async ValueTask<ParameterBindingResult> ConvertAsync(ConverterContext context)
         {
             // currently gets called for all params
             if (context.Parameter.Type != typeof(ProductViewModel))
             {
-                return await new ValueTask<BindingResult>(BindingResult.Failed());
+                return await new ValueTask<ParameterBindingResult>(ParameterBindingResult.Failed());
             }
 
             int prodId = 0;
@@ -48,7 +48,7 @@ namespace FunctionApp
                 var productVm = await JsonSerializer.DeserializeAsync<ProductViewModel>(stream, SharedJsonSettings.SerializerOptions);
                 this._logger.LogInformation("Received product info from REST API");
 
-                return await new ValueTask<BindingResult>(BindingResult.Success(productVm));
+                return await new ValueTask<ParameterBindingResult>(ParameterBindingResult.Success(productVm));
             }
         }
     }

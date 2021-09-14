@@ -11,17 +11,17 @@ namespace Microsoft.Azure.Functions.Worker.Converters
     /// </summary>
     internal class GuidConverter : IConverter
     {
-        public ValueTask<BindingResult> ConvertAsync(ConverterContext context)
+        public ValueTask<ParameterBindingResult> ConvertAsync(ConverterContext context)
         {
             if (context.Parameter.Type == typeof(Guid) || context.Parameter.Type == typeof(Guid?))
             {
                 if (context.Source is string sourceString && Guid.TryParse(sourceString, out Guid parsedGuid))
                 {
-                    return new ValueTask<BindingResult>(BindingResult.Success(parsedGuid));
+                    return new ValueTask<ParameterBindingResult>(ParameterBindingResult.Success(parsedGuid));
                 }
             }
 
-            return new ValueTask<BindingResult>(BindingResult.Failed());
+            return new ValueTask<ParameterBindingResult>(ParameterBindingResult.Failed());
         }
     }
 }

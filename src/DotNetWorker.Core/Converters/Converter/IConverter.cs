@@ -7,6 +7,6 @@ namespace Microsoft.Azure.Functions.Worker.Converters
 {
     public interface IConverter
     {
-        ValueTask<BindingResult> ConvertAsync(ConverterContext context);
+        ValueTask<ParameterBindingResult> ConvertAsync(ConverterContext context);
     }
 }

@@ -82,7 +82,7 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
         // to do: DI Inject this via another class (BinderCacheProvider ?)
         static readonly ConcurrentDictionary<Type, IConverter> binderTypeToConverterCache = new ConcurrentDictionary<Type, IConverter>();
 
-        internal async ValueTask<BindingResult> TryConvertAsync(ConverterContext context)
+        internal async ValueTask<ParameterBindingResult> TryConvertAsync(ConverterContext context)
         {
             IConverter? parameterSpecificConverter = GetConverterSpecificToParameter(context);
 
@@ -124,12 +124,12 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
             else
             {
                 // check the class used as method parameter has a BindingConverter attribute decoration.
-                var binderType = typeof(BindingConverterAttribute);
+                var binderType = typeof(ParameterBinderAttribute);
                 var binderAttr = context.Parameter.Type.GetCustomAttributes(binderType, inherit: true).FirstOrDefault();
 
                 if (binderAttr != null)
                 {
-                    converterType = ((BindingConverterAttribute)binderAttr).ConverterType;
+                    converterType = ((ParameterBinderAttribute)binderAttr).ConverterType;
                 }
             }
           

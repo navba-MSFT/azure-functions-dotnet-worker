@@ -3,7 +3,7 @@
     /// <summary>
     /// A type representing the result of binding operation.
     /// </summary>
-    public readonly struct BindingResult
+    public readonly struct ParameterBindingResult
     {
         /// <summary>
         /// Indicates the binding operation was successful or not.
@@ -17,7 +17,7 @@
         /// </summary>
         /// <param name="isSuccess"></param>
         /// <param name="model"></param>
-        public BindingResult(bool isSuccess, object? model)
+        public ParameterBindingResult(bool isSuccess, object? model)
         {
             this.IsSuccess = isSuccess;
             this.Model = model;
@@ -27,14 +27,14 @@
         /// Creates a new BindingResult
         /// </summary>
         /// <param name="model"></param>
-        public BindingResult(object model)
+        public ParameterBindingResult(object model)
         {
             this.IsSuccess = true;
             this.Model = model;
         }
         
-        public static BindingResult Success(object? model) => new BindingResult(isSuccess: true, model);
+        public static ParameterBindingResult Success(object? model) => new ParameterBindingResult(isSuccess: true, model);
         
-        public static BindingResult Failed() => new BindingResult(isSuccess:false, model: null);
+        public static ParameterBindingResult Failed() => new ParameterBindingResult(isSuccess:false, model: null);
     }
 }
