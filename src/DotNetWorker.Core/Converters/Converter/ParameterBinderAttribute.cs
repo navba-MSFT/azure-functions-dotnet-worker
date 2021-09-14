@@ -18,7 +18,8 @@ namespace Microsoft.Azure.Functions.Worker.Core.Converters.Converter
 
         AllowMultiple = false,
         Inherited = true)]
-    public class ParameterBinderAttribute : Attribute
+
+    public sealed class ParameterBinderAttribute : Attribute
     {
         public Type ConverterType { get; }
 

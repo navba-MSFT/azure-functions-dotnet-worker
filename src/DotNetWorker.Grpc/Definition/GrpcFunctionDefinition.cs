@@ -30,7 +30,7 @@ namespace Microsoft.Azure.Functions.Worker.Definition
 
             OutputBindings = grpcOutputBindings?.ToImmutableDictionary(kv => kv.Key, infoToMetadataLambda)
                 ?? ImmutableDictionary<string, BindingMetadata>.Empty;
-            
+
             Parameters = methodInfoLocator.GetMethod(PathToAssembly, EntryPoint)
                 .GetParameters()
                 .Where(p => p.Name != null)

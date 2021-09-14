@@ -9,7 +9,7 @@ namespace Microsoft.Azure.Functions.Worker.Converters
     internal class TypeConverter : IConverter
     {
         public ValueTask<ParameterBindingResult> ConvertAsync(ConverterContext context)
-        {    
+        {
             Type? sourceType = context.Source?.GetType();
 
             if (sourceType is not null &&
@@ -18,7 +18,7 @@ namespace Microsoft.Azure.Functions.Worker.Converters
                 var bindingResult = ParameterBindingResult.Success(context.Source);
                 return new ValueTask<ParameterBindingResult>(bindingResult);
             }
-                        
+
             return new ValueTask<ParameterBindingResult>(ParameterBindingResult.Failed());
         }
     }

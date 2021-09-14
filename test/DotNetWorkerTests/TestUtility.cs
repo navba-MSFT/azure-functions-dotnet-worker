@@ -19,7 +19,7 @@ namespace Microsoft.Azure.Functions.Worker.Tests
                 .Configure<WorkerOptions>(o => configure?.Invoke(o))
                 .AddSingleton<DefaultModelBindingFeature>()
                 .RegisterOutputChannel()
-                .RegisterDefaultConverters()
+                //.RegisterDefaultConverters()
                 .BuildServiceProvider()
                 .GetService<DefaultModelBindingFeature>();
         }

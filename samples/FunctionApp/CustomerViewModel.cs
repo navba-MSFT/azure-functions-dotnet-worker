@@ -14,7 +14,7 @@ namespace FunctionApp
 
     public sealed class MyCustomerConverter : IConverter
     {
-        ILogger<MyCustomerConverter> _logger;
+        private readonly ILogger<MyCustomerConverter> _logger;
 
         public MyCustomerConverter(ILogger<MyCustomerConverter> logger)
         {
@@ -27,38 +27,20 @@ namespace FunctionApp
             context.FunctionContext.BindingContext.BindingData.TryGetValue("customerId", out var customerIdObj);
 
             if (customerIdObj == null)
+            {
                 return new ValueTask<ParameterBindingResult>(ParameterBindingResult.Failed());
+            }
 
-            var customerViewModel = new CustomerViewModel { Id = Convert.ToInt32(customerIdObj), Name ="From Complex Converter" };
-            ParameterBindingResult result = ParameterBindingResult.Success(customerViewModel);
+            var customerViewModel = new CustomerViewModel
+            {
+                Id = Convert.ToInt32(customerIdObj),
+                Name = $"From Complex Converter Id:{customerIdObj}"
+            };
+
+            var bindingResult = ParameterBindingResult.Success(customerViewModel);
             this._logger.LogInformation($"Successfully bound using Custom converter {nameof(MyCustomerConverter)}");
 
-            return new ValueTask<ParameterBindingResult>(result);
-        }
-    }
-
-    public sealed class MyComplexCustomerConverter : IConverter
-    {
-        ILogger<MyCustomerConverter> _logger;
-
-        public MyComplexCustomerConverter(ILogger<MyCustomerConverter> logger)
-        {
-            this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            this._logger.LogInformation($"Custom converter {nameof(MyCustomerConverter)} instance created");
-        }
-
-        public ValueTask<ParameterBindingResult> ConvertAsync(ConverterContext context)
-        {
-            context.FunctionContext.BindingContext.BindingData.TryGetValue("customerId", out var customerIdObj);
-
-            if (customerIdObj == null)
-                return new ValueTask<ParameterBindingResult>(ParameterBindingResult.Failed());
-
-            var customerViewModel = new CustomerViewModel { Id = Convert.ToInt32(customerIdObj) , Name ="From Complex Converter" };
-            ParameterBindingResult result = ParameterBindingResult.Success(customerViewModel);
-            this._logger.LogInformation($"Successfully bound using Custom converter {nameof(MyCustomerConverter)}");
-
-            return new ValueTask<ParameterBindingResult>(result);
+            return new ValueTask<ParameterBindingResult>(bindingResult);
         }
     }
 }

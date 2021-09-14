@@ -38,20 +38,26 @@ namespace Microsoft.Azure.Functions.Worker
             Properties = properties ?? throw new ArgumentNullException(nameof(properties));
         }
 
+        /// <summary>
+        /// Creates an instance of the <see cref="FunctionParameter"/> class.
+        /// </summary>
+        /// <param name="name">The parameter name.</param>
+        /// <param name="type">The <see cref="System.Type"/> of the parameter.</param>
+        /// <param name="customAttributes">The custom attributes associated with this parameter.</param>
         public FunctionParameter(string name, Type type, IEnumerable<CustomAttributeData> customAttributes) : this(name, type)
-        {                       
+        {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Type = type ?? throw new ArgumentNullException(nameof(type));
             Properties = ImmutableDictionary<string, object>.Empty;
 
-            var bindingConverterAttributeData = customAttributes.FirstOrDefault( a=> a.AttributeType == typeof(ParameterBinderAttribute));
+            var bindingConverterAttributeData = customAttributes.FirstOrDefault(a => a.AttributeType == typeof(ParameterBinderAttribute));
             if (bindingConverterAttributeData != null)
             {
-                CustomAttributeTypedArgument customConverter = bindingConverterAttributeData.ConstructorArguments.FirstOrDefault(arg => arg.ArgumentType == typeof(Type));
-                if (customConverter != null)
-                {
-                    this.BindingConverterType = (Type) customConverter.Value;
-                }
+                CustomAttributeTypedArgument customConverter = bindingConverterAttributeData.ConstructorArguments
+                                                                    .FirstOrDefault(arg => arg.ArgumentType == typeof(Type));
+
+                this.BindingConverterType = (Type)customConverter.Value!;
+
             }
         }
 
@@ -70,6 +76,9 @@ namespace Microsoft.Azure.Functions.Worker
         /// </summary>
         public IReadOnlyDictionary<string, object> Properties { get; }
 
+        /// <summary>
+        /// Binding converter type associated with this parameter. Optional.
+        /// </summary>
         public Type? BindingConverterType { get; }
     }
 }

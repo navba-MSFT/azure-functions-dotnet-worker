@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace FunctionApp
 {
-    [ParameterBinder(typeof(MyProductVmCustomConverter))]
+    [ParameterBinder(typeof(MyProductVmConverter))]
     public sealed class ProductViewModel
     {
         public int Id { get; set; }
@@ -16,11 +16,11 @@ namespace FunctionApp
         public decimal Price { set; get; }
     }
 
-    public sealed class MyProductVmCustomConverter : IConverter
+    public sealed class MyProductVmConverter : IConverter
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ILogger<MyProductVmCustomConverter> _logger;
-        public MyProductVmCustomConverter(IHttpClientFactory httpClientFactory, ILogger<MyProductVmCustomConverter> logger)
+        private readonly ILogger<MyProductVmConverter> _logger;
+        public MyProductVmConverter(IHttpClientFactory httpClientFactory, ILogger<MyProductVmConverter> logger)
         {
             this._httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             this._logger = logger;
@@ -28,7 +28,7 @@ namespace FunctionApp
 
         public async ValueTask<ParameterBindingResult> ConvertAsync(ConverterContext context)
         {
-            // currently gets called for all params
+            // Gets called for all params
             if (context.Parameter.Type != typeof(ProductViewModel))
             {
                 return await new ValueTask<ParameterBindingResult>(ParameterBindingResult.Failed());
@@ -39,6 +39,7 @@ namespace FunctionApp
             {
                 prodId = Convert.ToInt32(productIdValObj);
             }
+
             var reqMsg = new HttpRequestMessage(HttpMethod.Get, $"https://shkr-playground.azurewebsites.net/api/products/{prodId}");
             var client = this._httpClientFactory.CreateClient();
 
@@ -46,7 +47,7 @@ namespace FunctionApp
             using (var stream = await response.Content.ReadAsStreamAsync())
             {
                 var productVm = await JsonSerializer.DeserializeAsync<ProductViewModel>(stream, SharedJsonSettings.SerializerOptions);
-                this._logger.LogInformation("Received product info from REST API");
+                this._logger.LogInformation($"Received product info from REST API for {prodId}");
 
                 return await new ValueTask<ParameterBindingResult>(ParameterBindingResult.Success(productVm));
             }

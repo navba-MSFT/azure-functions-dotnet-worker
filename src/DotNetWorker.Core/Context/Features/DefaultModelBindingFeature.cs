@@ -84,6 +84,7 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
 
         internal async ValueTask<ParameterBindingResult> TryConvertAsync(ConverterContext context)
         {
+            // Check a converter is present which is specifically registered for this parameter.
             IConverter? parameterSpecificConverter = GetConverterSpecificToParameter(context);
 
             if (parameterSpecificConverter!= null)
@@ -111,7 +112,7 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
         private static IConverter? GetConverterSpecificToParameter(ConverterContext context)
         {
             // Check a converter is specified on the method parameter. If yes,use that.
-            // ex: [BindingConverter(typeof(MyComplexCustomerConverter))] CustomerViewModel customerViewModel
+            // ex: [ParameterBinder(typeof(MyCustomerConverter))] CustomerViewModel customer
 
             Type? converterType = default;
             IConverter? parameterSpecificConverter = default;
@@ -135,6 +136,7 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
           
             if (converterType != null)
             {
+                // Get the IConverter instance for converterType.
                 if (binderTypeToConverterCache.TryGetValue(converterType, out var converterFromCache))
                 {
                     parameterSpecificConverter = converterFromCache;
@@ -144,7 +146,6 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
                     parameterSpecificConverter = (IConverter)ActivatorUtilities.CreateInstance(context.FunctionContext.InstanceServices, converterType);
                     binderTypeToConverterCache[converterType] = parameterSpecificConverter;
                 }
-
             }
 
             return parameterSpecificConverter;

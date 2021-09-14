@@ -1,9 +1,7 @@
 {
-    "IsEncrypted": false,
+  "IsEncrypted": false,
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "APPLICATIONINSIGHTS_CONNECTION_STRING": "InstrumentationKey=e64b9a93-49f3-4c48-80f9-8468ad311b4e;IngestionEndpoint=https://southcentralus-3.in.applicationinsights.azure.com/"
-
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true"
   }
-  }
+}

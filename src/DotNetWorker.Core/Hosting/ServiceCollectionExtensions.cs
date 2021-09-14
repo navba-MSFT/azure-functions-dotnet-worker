@@ -96,18 +96,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 workerOption.BindingConverters.Add(typeof(JsonPocoConverter));
                 workerOption.BindingConverters.Add(typeof(ArrayConverter));
             });
-
-        }
-
-        internal static IServiceCollection RegisterDefaultConverters(this IServiceCollection services)
-        {
-            return services.AddSingleton<IConverter, FunctionContextConverter>()
-                           .AddSingleton<IConverter, TypeConverter>()
-                           .AddSingleton<IConverter, GuidConverter>()
-                           .AddSingleton<IConverter, MemoryConverter>()
-                           .AddSingleton<IConverter, StringToByteConverter>()
-                           .AddSingleton<IConverter, JsonPocoConverter>()
-                           .AddSingleton<IConverter, ArrayConverter>();
         }
     }
 }

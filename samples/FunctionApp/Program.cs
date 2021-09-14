@@ -11,21 +11,18 @@ namespace FunctionApp
     {
         static async Task Main(string[] args)
         {
-            // #if DEBUG
-            //          Debugger.Launch();
-            // #endif
+// #if DEBUG
+//          Debugger.Launch();
+// #endif
             //<docsnippet_startup>
             var host = new HostBuilder()
                 //<docsnippet_configure_defaults>
-                .ConfigureFunctionsWorkerDefaults((hostBuilderContext, functionWorkerAppBuilder) =>
-                {
-
-                }, (workerOptions) =>
-                {
-                    //workerOptions.BindingConverters.Clear();
-                   // workerOptions.BindingConverters.Insert(0,typeof(MyCustomConverter1));
-                })
+                .ConfigureFunctionsWorkerDefaults()
                 //</docsnippet_configure_defaults>
+                //.ConfigureFunctionsWorkerDefaults((appBuilder)=>{ }, (options) =>
+                //{
+                //    options.BindingConverters.Add(typeof(MyCustomerConverter));
+                //})
                 //<docsnippet_dependency_injection>
                 .ConfigureServices(s =>
                 {

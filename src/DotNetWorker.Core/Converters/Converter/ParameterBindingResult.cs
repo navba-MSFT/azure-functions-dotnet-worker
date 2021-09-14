@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.Azure.Functions.Worker.Converters
 {
     /// <summary>
-    /// A type representing the result of binding operation.
+    /// A type representing the result of parameter binding operation.
     /// </summary>
     public readonly struct ParameterBindingResult
     {
@@ -10,6 +10,9 @@
         /// </summary>
         public bool IsSuccess { get; }
 
+        /// <summary>
+        /// The Model (Parameter) to which we were trying to bind.
+        /// </summary>
         public object? Model {get;}
 
         /// <summary>
