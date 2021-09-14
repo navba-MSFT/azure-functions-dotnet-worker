@@ -34,7 +34,7 @@ namespace FunctionApp
             var customerViewModel = new CustomerViewModel
             {
                 Id = Convert.ToInt32(customerIdObj),
-                Name = $"From Complex Converter Id:{customerIdObj}"
+                Name = $"From MyCustomerConverter Id:{customerIdObj}"
             };
 
             var bindingResult = ParameterBindingResult.Success(customerViewModel);

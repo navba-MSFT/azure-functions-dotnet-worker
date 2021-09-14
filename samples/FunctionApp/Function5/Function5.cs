@@ -27,7 +27,7 @@ namespace FunctionApp
             [ParameterBinder(typeof(MyCustomerConverter))] CustomerViewModel customer)
         {
             var response = req.CreateResponse(HttpStatusCode.OK);
-            response.WriteString("customer view model received: " + customer?.Id);
+            response.WriteString($"View model received> ID:{customer?.Id}, NAME: {customer?.Name}");
             return response;
         }
     }

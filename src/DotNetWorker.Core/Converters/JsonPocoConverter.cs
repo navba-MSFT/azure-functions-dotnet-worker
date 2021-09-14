@@ -33,7 +33,7 @@ namespace Microsoft.Azure.Functions.Worker.Converters
         {
             if (context.Parameter.Type == typeof(string))
             {
-                return await new ValueTask<ParameterBindingResult>(ParameterBindingResult.Failed());
+                return ParameterBindingResult.Failed();
             }
 
             byte[]? bytes = null;
@@ -49,13 +49,13 @@ namespace Microsoft.Azure.Functions.Worker.Converters
 
             if (bytes == null)
             {
-                return await new ValueTask<ParameterBindingResult>(ParameterBindingResult.Failed());
+                return ParameterBindingResult.Failed();
             }
 
             var deserializationResult = await TryDeserialize(bytes, context.Parameter.Type);
             var bindingResult = new ParameterBindingResult(deserializationResult.Success, deserializationResult.DeserializedObject);
             
-            return await new ValueTask<ParameterBindingResult>(bindingResult);
+            return bindingResult;
         }
 
         private async Task<(bool Success,object? DeserializedObject)> TryDeserialize(byte[] bytes, Type type)

@@ -28,10 +28,9 @@ namespace FunctionApp
 
         public async ValueTask<ParameterBindingResult> ConvertAsync(ConverterContext context)
         {
-            // Gets called for all params
             if (context.Parameter.Type != typeof(ProductViewModel))
             {
-                return await new ValueTask<ParameterBindingResult>(ParameterBindingResult.Failed());
+                return ParameterBindingResult.Failed();
             }
 
             int prodId = 0;
@@ -49,7 +48,7 @@ namespace FunctionApp
                 var productVm = await JsonSerializer.DeserializeAsync<ProductViewModel>(stream, SharedJsonSettings.SerializerOptions);
                 this._logger.LogInformation($"Received product info from REST API for {prodId}");
 
-                return await new ValueTask<ParameterBindingResult>(ParameterBindingResult.Success(productVm));
+                return ParameterBindingResult.Success(productVm);
             }
         }
     }
