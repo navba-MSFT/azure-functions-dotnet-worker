@@ -26,11 +26,11 @@ namespace FunctionApp
             this._logger = logger;
         }
 
-        public async ValueTask<ParameterBindingResult> ConvertAsync(ConverterContext context)
+        public async ValueTask<ConversionResult> ConvertAsync(ConverterContext context)
         {
-            if (context.Parameter.Type != typeof(ProductViewModel))
+            if (context.TargetType != typeof(ProductViewModel))
             {
-                return ParameterBindingResult.Failed();
+                return ConversionResult.Failed();
             }
 
             int prodId = 0;
@@ -48,7 +48,7 @@ namespace FunctionApp
                 var productVm = await JsonSerializer.DeserializeAsync<ProductViewModel>(stream, SharedJsonSettings.SerializerOptions);
                 this._logger.LogInformation($"Received product info from REST API for {prodId}");
 
-                return ParameterBindingResult.Success(productVm);
+                return ConversionResult.Success(productVm);
             }
         }
     }

@@ -22,13 +22,13 @@ namespace FunctionApp
             this._logger.LogInformation($"Custom converter {nameof(MyCustomerConverter)} instance created");
         }
 
-        public ValueTask<ParameterBindingResult> ConvertAsync(ConverterContext context)
+        public ValueTask<ConversionResult> ConvertAsync(ConverterContext context)
         {
             context.FunctionContext.BindingContext.BindingData.TryGetValue("customerId", out var customerIdObj);
 
             if (customerIdObj == null)
             {
-                return new ValueTask<ParameterBindingResult>(ParameterBindingResult.Failed());
+                return new ValueTask<ConversionResult>(ConversionResult.Failed());
             }
 
             var customerViewModel = new CustomerViewModel
@@ -37,10 +37,10 @@ namespace FunctionApp
                 Name = $"From MyCustomerConverter Id:{customerIdObj}"
             };
 
-            var bindingResult = ParameterBindingResult.Success(customerViewModel);
+            var bindingResult = ConversionResult.Success(customerViewModel);
             this._logger.LogInformation($"Successfully bound using Custom converter {nameof(MyCustomerConverter)}");
 
-            return new ValueTask<ParameterBindingResult>(bindingResult);
+            return new ValueTask<ConversionResult>(bindingResult);
         }
     }
 }

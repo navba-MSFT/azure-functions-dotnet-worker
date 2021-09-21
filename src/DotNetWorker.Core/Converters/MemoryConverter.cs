@@ -9,26 +9,26 @@ namespace Microsoft.Azure.Functions.Worker.Converters
 {
     internal class MemoryConverter : IConverter
     {
-        public ValueTask<ParameterBindingResult> ConvertAsync(ConverterContext context)
+        public ValueTask<ConversionResult> ConvertAsync(ConverterContext context)
         {
             if (context.Source is not ReadOnlyMemory<byte> sourceMemory)
             {
-                return new ValueTask<ParameterBindingResult>(ParameterBindingResult.Failed());
+                return new ValueTask<ConversionResult>(ConversionResult.Failed());
             }
 
-            if (context.Parameter.Type.IsAssignableFrom(typeof(string)))
+            if (context.TargetType.IsAssignableFrom(typeof(string)))
             {
                 var target = Encoding.UTF8.GetString(sourceMemory.Span);
-                return new ValueTask<ParameterBindingResult>(ParameterBindingResult.Success(target));
+                return new ValueTask<ConversionResult>(ConversionResult.Success(target));
             }
 
-            if (context.Parameter.Type.IsAssignableFrom(typeof(byte[])))
+            if (context.TargetType.IsAssignableFrom(typeof(byte[])))
             {
                 var target = sourceMemory.ToArray();
-                return new ValueTask<ParameterBindingResult>(ParameterBindingResult.Success(target));
+                return new ValueTask<ConversionResult>(ConversionResult.Success(target));
             }
 
-            return new ValueTask<ParameterBindingResult>(ParameterBindingResult.Failed());
+            return new ValueTask<ConversionResult>(ConversionResult.Failed());
         }
     }
 }

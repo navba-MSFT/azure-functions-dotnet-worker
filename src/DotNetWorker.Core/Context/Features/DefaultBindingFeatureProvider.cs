@@ -2,25 +2,17 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using Microsoft.Azure.Functions.Worker.Converters;
 
 namespace Microsoft.Azure.Functions.Worker.Context.Features
 {
     internal class DefaultBindingFeatureProvider : IInvocationFeatureProvider
     {
         private static readonly Type _featureType = typeof(IModelBindingFeature);
-        private readonly IEnumerable<IConverter> _converters;
-
-        public DefaultBindingFeatureProvider(IBindingConverterFactory converterFactory)
-        {
-            _converters = converterFactory?.CreateConverters() ?? throw new ArgumentNullException(nameof(converterFactory));
-        }
 
         public bool TryCreate(Type type, out object? feature)
         {
             feature = type == _featureType
-                ? new DefaultModelBindingFeature(_converters)
+                ? new DefaultModelBindingFeature()
                 : null;
 
             return feature is not null;

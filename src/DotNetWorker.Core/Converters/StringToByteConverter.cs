@@ -8,18 +8,18 @@ namespace Microsoft.Azure.Functions.Worker.Converters
 {
     internal class StringToByteConverter : IConverter
     {
-        public ValueTask<ParameterBindingResult> ConvertAsync(ConverterContext context)
+        public ValueTask<ConversionResult> ConvertAsync(ConverterContext context)
         {
-            if (!(context.Parameter.Type.IsAssignableFrom(typeof(byte[])) &&
+            if (!(context.TargetType.IsAssignableFrom(typeof(byte[])) &&
                   context.Source is string sourceString))
             {
-                return new ValueTask<ParameterBindingResult>(ParameterBindingResult.Failed());
+                return new ValueTask<ConversionResult>(ConversionResult.Failed());
             }
 
             var byteArray = Encoding.UTF8.GetBytes(sourceString);
-            var bindingResult = ParameterBindingResult.Success(byteArray);
+            var bindingResult = ConversionResult.Success(byteArray);
 
-            return new ValueTask<ParameterBindingResult>(bindingResult);
+            return new ValueTask<ConversionResult>(bindingResult);
         }
     }
 }

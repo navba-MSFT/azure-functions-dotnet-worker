@@ -8,18 +8,18 @@ namespace Microsoft.Azure.Functions.Worker.Converters
 {
     internal class TypeConverter : IConverter
     {
-        public ValueTask<ParameterBindingResult> ConvertAsync(ConverterContext context)
+        public ValueTask<ConversionResult> ConvertAsync(ConverterContext context)
         {
             Type? sourceType = context.Source?.GetType();
 
             if (sourceType is not null &&
-                context.Parameter.Type.IsAssignableFrom(sourceType))
+                context.TargetType.IsAssignableFrom(sourceType))
             {
-                var bindingResult = ParameterBindingResult.Success(context.Source);
-                return new ValueTask<ParameterBindingResult>(bindingResult);
+                var bindingResult = ConversionResult.Success(context.Source);
+                return new ValueTask<ConversionResult>(bindingResult);
             }
 
-            return new ValueTask<ParameterBindingResult>(ParameterBindingResult.Failed());
+            return new ValueTask<ConversionResult>(ConversionResult.Failed());
         }
     }
 }

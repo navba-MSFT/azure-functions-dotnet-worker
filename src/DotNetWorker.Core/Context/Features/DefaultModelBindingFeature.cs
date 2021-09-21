@@ -2,27 +2,18 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker.Converters;
-using Microsoft.Azure.Functions.Worker.Core.Converters.Converter;
+using Microsoft.Azure.Functions.Worker.Core.Converters;
 using Microsoft.Azure.Functions.Worker.Diagnostics.Exceptions;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Azure.Functions.Worker.Context.Features
 {
     internal class DefaultModelBindingFeature : IModelBindingFeature
     {
-        private readonly IEnumerable<IConverter> _converters;
         private bool _inputBound;
         private object?[]? _parameterValues;
-
-        public DefaultModelBindingFeature(IEnumerable<IConverter> converters)
-        {
-            _converters = converters ?? throw new ArgumentNullException(nameof(converters));
-        }
 
         public object?[]? InputArguments => _parameterValues;
 
@@ -36,6 +27,13 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
 
             _parameterValues = new object?[context.FunctionDefinition.Parameters.Length];
             _inputBound = true;
+                            
+            IConversionFeature conversionFeature = context.Features.Get<IConversionFeature>();
+
+            if (conversionFeature == null)
+            {                                
+                throw new InvalidOperationException("Conversion feature is missing!");
+            }
 
             List<string>? errors = null;
             for (int i = 0; i < _parameterValues.Length; i++)
@@ -50,9 +48,17 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
                     functionBindings.TriggerMetadata.TryGetValue(param.Name, out source);
                 }
 
-                var converterContext = new DefaultConverterContext(param, source, context);
+                var converterContext = new DefaultConverterContext(param.Type, source, context);
 
-                var bindingResult = await TryConvertAsync(converterContext);
+                if (param.BindingConverterType != null)
+                {
+                    converterContext.Properties = new Dictionary<string, object>
+                    {
+                        { PropertyBagKeys.ConverterType, param.BindingConverterType}
+                    };
+                }
+
+                var bindingResult = await conversionFeature!.TryConvertAsync(converterContext);
 
                 if (bindingResult.IsSuccess)
                 {
@@ -77,78 +83,6 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
             }
 
             return _parameterValues;
-        }
-
-        // to do: DI Inject this via another class (BinderCacheProvider ?)
-        static readonly ConcurrentDictionary<Type, IConverter> binderTypeToConverterCache = new ConcurrentDictionary<Type, IConverter>();
-
-        internal async ValueTask<ParameterBindingResult> TryConvertAsync(ConverterContext context)
-        {
-            // Check a converter is present which is specifically registered for this parameter.
-            IConverter? parameterSpecificConverter = GetConverterSpecificToParameter(context);
-
-            if (parameterSpecificConverter!= null)
-            {
-                var bindingResult = await parameterSpecificConverter.ConvertAsync(context);
-                return bindingResult;
-            }
-
-            // Use the globally registered converters
-            // The first converter to successfully convert wins.
-            // For example, this allows a converter that parses JSON strings to return false if the
-            // string is not valid JSON. This manager will then continue with the next matching provider.
-            foreach (var converter in _converters)
-            {
-                var bindingResult = await converter.ConvertAsync(context);
-                if (bindingResult.IsSuccess)
-                {
-                    return bindingResult;
-                }
-            }
-
-            return default;
-        }
-
-        private static IConverter? GetConverterSpecificToParameter(ConverterContext context)
-        {
-            // Check a converter is specified on the method parameter. If yes,use that.
-            // ex: [ParameterBinder(typeof(MyCustomerConverter))] CustomerViewModel customer
-
-            Type? converterType = default;
-            IConverter? parameterSpecificConverter = default;
-
-            var bindingConverterTypeFromParam = context.Parameter.BindingConverterType;
-            if (bindingConverterTypeFromParam != null)
-            {
-                converterType = bindingConverterTypeFromParam;
-            }
-            else
-            {
-                // check the class used as method parameter has a BindingConverter attribute decoration.
-                var binderType = typeof(ParameterBinderAttribute);
-                var binderAttr = context.Parameter.Type.GetCustomAttributes(binderType, inherit: true).FirstOrDefault();
-
-                if (binderAttr != null)
-                {
-                    converterType = ((ParameterBinderAttribute)binderAttr).ConverterType;
-                }
-            }
-          
-            if (converterType != null)
-            {
-                // Get the IConverter instance for converterType.
-                if (binderTypeToConverterCache.TryGetValue(converterType, out var converterFromCache))
-                {
-                    parameterSpecificConverter = converterFromCache;
-                }
-                else
-                {
-                    parameterSpecificConverter = (IConverter)ActivatorUtilities.CreateInstance(context.FunctionContext.InstanceServices, converterType);
-                    binderTypeToConverterCache[converterType] = parameterSpecificConverter;
-                }
-            }
-
-            return parameterSpecificConverter;
         }
     }
 }

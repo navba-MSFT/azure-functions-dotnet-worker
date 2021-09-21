@@ -29,12 +29,15 @@ namespace Microsoft.Azure.Functions.Worker
         private readonly FunctionRpcClient _rpcClient;
         private readonly IInvocationFeaturesFactory _invocationFeaturesFactory;
         private readonly IOutputBindingsInfoProvider _outputBindingsInfoProvider;
+        private readonly IConversionFeatureProvider _conversionFeatureProvider;
         private readonly IMethodInfoLocator _methodInfoLocator;
         private readonly IOptions<GrpcWorkerStartupOptions> _startupOptions;
         private readonly ObjectSerializer _serializer;
 
         public GrpcWorker(IFunctionsApplication application, FunctionRpcClient rpcClient, GrpcHostChannel outputChannel, IInvocationFeaturesFactory invocationFeaturesFactory,
-            IOutputBindingsInfoProvider outputBindingsInfoProvider, IMethodInfoLocator methodInfoLocator, IOptions<GrpcWorkerStartupOptions> startupOptions, IOptions<WorkerOptions> workerOptions)
+            IOutputBindingsInfoProvider outputBindingsInfoProvider, IMethodInfoLocator methodInfoLocator, 
+            IOptions<GrpcWorkerStartupOptions> startupOptions, IOptions<WorkerOptions> workerOptions,
+            IConversionFeatureProvider conversionFeatureProvider)
         {
             if (outputChannel == null)
             {
@@ -51,6 +54,7 @@ namespace Microsoft.Azure.Functions.Worker
             _methodInfoLocator = methodInfoLocator ?? throw new ArgumentNullException(nameof(methodInfoLocator));
             _startupOptions = startupOptions ?? throw new ArgumentNullException(nameof(startupOptions));
             _serializer = workerOptions.Value.Serializer ?? throw new InvalidOperationException(nameof(workerOptions.Value.Serializer));
+            _conversionFeatureProvider = conversionFeatureProvider ?? throw new ArgumentNullException(nameof(conversionFeatureProvider));
         }
 
         public async Task StartAsync(CancellationToken token)
@@ -116,7 +120,7 @@ namespace Microsoft.Azure.Functions.Worker
             if (request.ContentCase == MsgType.InvocationRequest)
             {
                 responseMessage.InvocationResponse = await InvocationRequestHandlerAsync(request.InvocationRequest, _application,
-                    _invocationFeaturesFactory, _serializer, _outputBindingsInfoProvider);
+                    _invocationFeaturesFactory, _serializer, _outputBindingsInfoProvider, _conversionFeatureProvider);
             }
             else if (request.ContentCase == MsgType.WorkerInitRequest)
             {
@@ -144,7 +148,9 @@ namespace Microsoft.Azure.Functions.Worker
         }
 
         internal static async Task<InvocationResponse> InvocationRequestHandlerAsync(InvocationRequest request, IFunctionsApplication application,
-            IInvocationFeaturesFactory invocationFeaturesFactory, ObjectSerializer serializer, IOutputBindingsInfoProvider outputBindingsInfoProvider)
+            IInvocationFeaturesFactory invocationFeaturesFactory, ObjectSerializer serializer, 
+            IOutputBindingsInfoProvider outputBindingsInfoProvider,
+            IConversionFeatureProvider conversionFeatureProvider)
         {
             FunctionContext? context = null;
             FunctionInvocation? invocation = null;
@@ -162,6 +168,11 @@ namespace Microsoft.Azure.Functions.Worker
 
                 context = application.CreateContext(invocationFeatures);
                 invocationFeatures.Set<IFunctionBindingsFeature>(new GrpcFunctionBindingsFeature(context, request, outputBindingsInfoProvider));
+
+                if (conversionFeatureProvider.TryCreate(typeof(DefaultConversionFeature), out var conversion))
+                {                                    
+                    invocationFeatures.Set<IConversionFeature>(conversion);
+                }
 
                 await application.InvokeFunctionAsync(context);
 

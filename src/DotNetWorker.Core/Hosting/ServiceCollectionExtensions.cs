@@ -51,9 +51,10 @@ namespace Microsoft.Extensions.DependencyInjection
             // Invocation Features
             services.TryAddSingleton<IInvocationFeaturesFactory, DefaultInvocationFeaturesFactory>();
             services.AddSingleton<IInvocationFeatureProvider, DefaultBindingFeatureProvider>();
-           
-            // Binding converter setup
-            services.AddSingleton<IBindingConverterFactory, BindingConverterFactory>();
+
+            // Conversion feature
+            services.AddSingleton<IConversionFeatureProvider, ConversionFeatureProvider>();
+            services.AddSingleton<IConverterProvider, ConverterProvider>();
 
             // Output Bindings
             services.AddSingleton<IOutputBindingsInfoProvider, DefaultOutputBindingsInfoProvider>();

@@ -12,13 +12,13 @@ namespace Microsoft.Azure.Functions.Worker.Converters
     internal class ArrayConverter : IConverter
     {
         // Convert IEnumerable to array
-        public ValueTask<ParameterBindingResult> ConvertAsync(ConverterContext context)
+        public ValueTask<ConversionResult> ConvertAsync(ConverterContext context)
         {
             object? target = null;
             // Ensure requested type is an array
-            if (context.Parameter.Type.IsArray)
+            if (context.TargetType.IsArray)
             {
-                Type? elementType = context.Parameter.Type.GetElementType();
+                Type? elementType = context.TargetType.GetElementType();
                 if (elementType is not null)
                 {
                     // Ensure that we can assign from source to parameter type
@@ -42,10 +42,10 @@ namespace Microsoft.Azure.Functions.Worker.Converters
 
             if (target is not null)
             {
-                return new ValueTask<ParameterBindingResult>(ParameterBindingResult.Success(target));
+                return new ValueTask<ConversionResult>(ConversionResult.Success(target));
             }
 
-            return new ValueTask<ParameterBindingResult>(ParameterBindingResult.Failed());
+            return new ValueTask<ConversionResult>(ConversionResult.Failed());
         }
 
         private static object? GetBinaryData(IEnumerable<ReadOnlyMemory<byte>> source, Type targetType)

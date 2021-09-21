@@ -29,11 +29,11 @@ namespace Microsoft.Azure.Functions.Worker.Converters
             _serializer = options.Value.Serializer;
         }
 
-        public async ValueTask<ParameterBindingResult> ConvertAsync(ConverterContext context)
+        public async ValueTask<ConversionResult> ConvertAsync(ConverterContext context)
         {
-            if (context.Parameter.Type == typeof(string))
+            if (context.TargetType == typeof(string))
             {
-                return ParameterBindingResult.Failed();
+                return ConversionResult.Failed();
             }
 
             byte[]? bytes = null;
@@ -49,11 +49,11 @@ namespace Microsoft.Azure.Functions.Worker.Converters
 
             if (bytes == null)
             {
-                return ParameterBindingResult.Failed();
+                return ConversionResult.Failed();
             }
 
-            var deserializationResult = await TryDeserialize(bytes, context.Parameter.Type);
-            var bindingResult = new ParameterBindingResult(deserializationResult.Success, deserializationResult.DeserializedObject);
+            var deserializationResult = await TryDeserialize(bytes, context.TargetType);
+            var bindingResult = new ConversionResult(deserializationResult.Success, deserializationResult.DeserializedObject);
             
             return bindingResult;
         }
