@@ -61,12 +61,12 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
             else
             {
                 // check the class used as TargetType has a BindingConverter attribute decoration.
-                var binderType = typeof(ParameterBinderAttribute);
+                var binderType = typeof(ConverterAttribute);
                 var binderAttr = context.TargetType.GetCustomAttributes(binderType, inherit: true).FirstOrDefault();
 
                 if (binderAttr != null)
                 {
-                    converterType = ((ParameterBinderAttribute)binderAttr).ConverterType;
+                    converterType = ((ConverterAttribute)binderAttr).ConverterType;
                 }
             }
 
