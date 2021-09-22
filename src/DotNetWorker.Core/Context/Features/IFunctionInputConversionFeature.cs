@@ -9,7 +9,7 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
     /// <summary>
     /// A feature which allow us to do a single conversion from a source to target type.
     /// </summary>
-    public interface IConversionFeature
+    public interface IFunctionInputConversionFeature
     {
         ValueTask<ConversionResult> TryConvertAsync(ConverterContext context);
     }

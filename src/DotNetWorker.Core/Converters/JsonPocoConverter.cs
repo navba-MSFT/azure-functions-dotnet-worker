@@ -11,7 +11,7 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.Azure.Functions.Worker.Converters
 {
-    internal class JsonPocoConverter : IConverter
+    internal class JsonPocoConverter : IFunctionInputConverter
     {
         private readonly ObjectSerializer _serializer;
 

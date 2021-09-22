@@ -9,7 +9,7 @@ namespace Microsoft.Azure.Functions.Worker.Converters
     /// <summary>
     /// Converter to bind Guid/Guid? type parameters.
     /// </summary>
-    internal class GuidConverter : IConverter
+    internal class GuidConverter : IFunctionInputConverter
     {
         public ValueTask<ConversionResult> ConvertAsync(ConverterContext context)
         {

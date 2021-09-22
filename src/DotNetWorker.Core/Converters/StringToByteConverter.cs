@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Azure.Functions.Worker.Converters
 {
-    internal class StringToByteConverter : IConverter
+    internal class StringToByteConverter : IFunctionInputConverter
     {
         public ValueTask<ConversionResult> ConvertAsync(ConverterContext context)
         {

@@ -10,18 +10,18 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
     /// </summary>
     internal sealed class ConversionFeatureProvider : IConversionFeatureProvider
     {
-        private static readonly Type _featureType = typeof(DefaultConversionFeature);
-        private readonly IConverterProvider _converterProvider;
+        private static readonly Type _featureType = typeof(DefaultInputConversionFeature);
+        private readonly IFunctionInputConverterProvider _converterProvider;
 
-        public ConversionFeatureProvider(IConverterProvider converterProvider)
+        public ConversionFeatureProvider(IFunctionInputConverterProvider converterProvider)
         {
             _converterProvider = converterProvider;
         }
 
-        public bool TryCreate(Type type, out IConversionFeature? feature)
+        public bool TryCreate(Type type, out IFunctionInputConversionFeature? feature)
         {
             feature = type == _featureType 
-                ? new DefaultConversionFeature(_converterProvider) 
+                ? new DefaultInputConversionFeature(_converterProvider) 
                 : null;
 
             return feature is not null;

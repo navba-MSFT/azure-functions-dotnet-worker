@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Azure.Functions.Worker.Converters
 {
-    internal class TypeConverter : IConverter
+    internal class TypeConverter : IFunctionInputConverter
     {
         public ValueTask<ConversionResult> ConvertAsync(ConverterContext context)
         {

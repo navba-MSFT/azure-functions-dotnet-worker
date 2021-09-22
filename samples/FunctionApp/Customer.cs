@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker.Converters;
+using Microsoft.Azure.Functions.Worker.Core.Converters.Converter;
 using Microsoft.Extensions.Logging;
 
 namespace FunctionApp
 {
-    public sealed class CustomerViewModel
+    [InputConverter(typeof(MyCustomerConverter))]
+    public sealed class Customer
     {
         public int Id { get; set; }
         public string Name { set; get; }
         public decimal Price { set; get; }
     }
 
-    public sealed class MyCustomerConverter : IConverter
+    public sealed class MyCustomerConverter : IFunctionInputConverter
     {
         private readonly ILogger<MyCustomerConverter> _logger;
 
@@ -24,17 +26,17 @@ namespace FunctionApp
 
         public ValueTask<ConversionResult> ConvertAsync(ConverterContext context)
         {
-            context.FunctionContext.BindingContext.BindingData.TryGetValue("customerId", out var customerIdObj);
+            var customerIdObj = context.Source;
 
-            if (customerIdObj == null)
+            if (customerIdObj == null || !int.TryParse(customerIdObj.ToString(), out int customerId))
             {
                 return new ValueTask<ConversionResult>(ConversionResult.Failed());
             }
 
-            var customerViewModel = new CustomerViewModel
+            var customerViewModel = new Customer
             {
-                Id = Convert.ToInt32(customerIdObj),
-                Name = $"From MyCustomerConverter Id:{customerIdObj}"
+                Id = customerId,
+                Name = $"From MyCustomerConverter Id:{customerId}"
             };
 
             var bindingResult = ConversionResult.Success(customerViewModel);

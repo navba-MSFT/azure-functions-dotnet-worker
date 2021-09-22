@@ -10,6 +10,6 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
     /// </summary>
     public interface IConversionFeatureProvider
     {
-        bool TryCreate(Type type, out IConversionFeature? feature);
+        bool TryCreate(Type type, out IFunctionInputConversionFeature? feature);
     }
 }

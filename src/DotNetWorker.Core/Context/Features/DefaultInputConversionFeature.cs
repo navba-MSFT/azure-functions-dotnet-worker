@@ -11,12 +11,12 @@ using Microsoft.Azure.Functions.Worker.Core.Converters.Converter;
 
 namespace Microsoft.Azure.Functions.Worker.Context.Features
 {
-    internal sealed class DefaultConversionFeature : IConversionFeature
+    internal sealed class DefaultInputConversionFeature : IFunctionInputConversionFeature
     {
-        private readonly IEnumerable<IConverter> _converters;
-        private readonly IConverterProvider _converterProvider;
+        private readonly IEnumerable<IFunctionInputConverter> _converters;
+        private readonly IFunctionInputConverterProvider _converterProvider;
 
-        public DefaultConversionFeature(IConverterProvider converterProvider)
+        public DefaultInputConversionFeature(IFunctionInputConverterProvider converterProvider)
         {
             _converters = converterProvider.DefaultConverters;
             _converterProvider = converterProvider ?? throw new ArgumentNullException(nameof(converterProvider));
@@ -25,7 +25,7 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
         public async ValueTask<ConversionResult> TryConvertAsync(ConverterContext context)
         {
             // Check a converter is explicitly passed via the converter context.
-            IConverter? converterFromContext = GetConverterFromContext(context);
+            IFunctionInputConverter? converterFromContext = GetConverterFromContext(context);
 
             if (converterFromContext != null)
             {
@@ -49,7 +49,7 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
             return default;
         }
 
-        private IConverter? GetConverterFromContext(ConverterContext context)
+        private IFunctionInputConverter? GetConverterFromContext(ConverterContext context)
         {
             Type? converterType = default;
                         
@@ -61,12 +61,12 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
             else
             {
                 // check the class used as TargetType has a BindingConverter attribute decoration.
-                var binderType = typeof(ConverterAttribute);
+                var binderType = typeof(InputConverterAttribute);
                 var binderAttr = context.TargetType.GetCustomAttributes(binderType, inherit: true).FirstOrDefault();
 
                 if (binderAttr != null)
                 {
-                    converterType = ((ConverterAttribute)binderAttr).ConverterType;
+                    converterType = ((InputConverterAttribute)binderAttr).ConverterType;
                 }
             }
 

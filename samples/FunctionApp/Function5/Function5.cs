@@ -24,7 +24,7 @@ namespace FunctionApp
         [Function(nameof(Function5))]
         public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req, 
             FunctionContext executionContext,
-            [Converter(typeof(MyCustomerConverter))] CustomerViewModel customer)
+            [InputConverter(typeof(MyCustomerConverter))] Customer customer)
         {
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.WriteString($"View model received> ID:{customer?.Id}, NAME: {customer?.Name}");

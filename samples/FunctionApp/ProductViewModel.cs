@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace FunctionApp
 {
-    [Converter(typeof(MyProductVmConverter))]
+    [InputConverter(typeof(MyProductVmConverter))]
     public sealed class ProductViewModel
     {
         public int Id { get; set; }
@@ -16,7 +16,7 @@ namespace FunctionApp
         public decimal Price { set; get; }
     }
 
-    public sealed class MyProductVmConverter : IConverter
+    public sealed class MyProductVmConverter : IFunctionInputConverter
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<MyProductVmConverter> _logger;

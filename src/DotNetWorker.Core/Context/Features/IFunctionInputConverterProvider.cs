@@ -7,18 +7,18 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
     /// <summary>
     /// An abstraction to get IConverter instances.
     /// </summary>
-    public interface IConverterProvider
+    public interface IFunctionInputConverterProvider
     {
         /// <summary>
         /// Gets the built-in default converters.
         /// </summary>
-        IEnumerable<IConverter> DefaultConverters { get; }
+        IEnumerable<IFunctionInputConverter> DefaultConverters { get; }
         
         /// <summary>
         /// Gets an instance of the converter for the type requested.
         /// </summary>
         /// <param name="converterType">The type of IConverter implementation to return.</param>
         /// <returns>IConverter instance of the requested type.</returns>
-        IConverter GetConverterInstance(Type converterType);
+        IFunctionInputConverter GetConverterInstance(Type converterType);
     }
 }

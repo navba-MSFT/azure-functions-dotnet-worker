@@ -169,9 +169,9 @@ namespace Microsoft.Azure.Functions.Worker
                 context = application.CreateContext(invocationFeatures);
                 invocationFeatures.Set<IFunctionBindingsFeature>(new GrpcFunctionBindingsFeature(context, request, outputBindingsInfoProvider));
 
-                if (conversionFeatureProvider.TryCreate(typeof(DefaultConversionFeature), out var conversion))
+                if (conversionFeatureProvider.TryCreate(typeof(DefaultInputConversionFeature), out var conversion))
                 {                                    
-                    invocationFeatures.Set<IConversionFeature>(conversion);
+                    invocationFeatures.Set<IFunctionInputConversionFeature>(conversion);
                 }
 
                 await application.InvokeFunctionAsync(context);

@@ -54,7 +54,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             // Conversion feature
             services.AddSingleton<IConversionFeatureProvider, ConversionFeatureProvider>();
-            services.AddSingleton<IConverterProvider, ConverterProvider>();
+            services.AddSingleton<IFunctionInputConverterProvider, DefaultFunctionInputConverterProvider>();
 
             // Output Bindings
             services.AddSingleton<IOutputBindingsInfoProvider, DefaultOutputBindingsInfoProvider>();

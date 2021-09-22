@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Microsoft.Azure.Functions.Worker.Converters
 {
     // Converting IEnumerable<> to Array
-    internal class ArrayConverter : IConverter
+    internal class ArrayConverter : IFunctionInputConverter
     {
         // Convert IEnumerable to array
         public ValueTask<ConversionResult> ConvertAsync(ConverterContext context)

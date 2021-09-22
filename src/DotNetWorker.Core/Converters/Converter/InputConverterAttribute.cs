@@ -10,18 +10,18 @@ namespace Microsoft.Azure.Functions.Worker.Core.Converters.Converter
         AttributeTargets.Struct,
         AllowMultiple = false,
         Inherited = true)]
-    public sealed class ConverterAttribute : Attribute
+    public sealed class InputConverterAttribute : Attribute
     {
         public Type ConverterType { get; }
 
-        public ConverterAttribute(Type converterType)
+        public InputConverterAttribute(Type converterType)
         {
             if (converterType == null)
             {
                 throw new ArgumentNullException(nameof(converterType));
             }
 
-            if (typeof(IConverter).IsAssignableFrom(converterType) == false)
+            if (typeof(IFunctionInputConverter).IsAssignableFrom(converterType) == false)
             {
                 throw new InvalidOperationException($"{converterType.Name} should implement Microsoft.Azure.Functions.Worker.Converters.IConverter to be used as a binding converter");
             }

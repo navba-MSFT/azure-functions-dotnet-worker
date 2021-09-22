@@ -17,12 +17,12 @@ namespace FunctionApp
             // in the context.Items dictionary
             context.Items.Add("middlewareitem", "Hello, from middleware");
 
-            context.BindingContext.BindingData.TryGetValue("productId", out var productIdSourceData);
+            context.BindingContext.BindingData.TryGetValue("id", out var Id);
 
             var converterContext = new MyConverterContext
             {
-                TargetType =  typeof(ProductViewModel),
-                Source = productIdSourceData,
+                TargetType =  typeof(Customer),
+                Source = Id,
                 FunctionContext = context,
                 //Properties = new Dictionary<string, object>
                 //{
@@ -31,8 +31,8 @@ namespace FunctionApp
                 //}
             };
             
-            // Get the conversion feature and call TryConvert
-            var conversionFeature = context.Features.Get<IConversionFeature>();
+            // Get the input conversion feature and call TryConvert
+            var conversionFeature = context.Features.Get<IFunctionInputConversionFeature>();
             var conversionResult = await conversionFeature.TryConvertAsync(converterContext);
 
             //var modelBindingFeature = (DefaultModelBindingFeature)context.Features.Get<IModelBindingFeature>();
