@@ -6,7 +6,7 @@ using Microsoft.Azure.Functions.Worker.OutputBindings;
 
 namespace Microsoft.Azure.Functions.Worker.Context.Features
 {
-    internal interface IFunctionBindingsFeature
+    public interface IFunctionBindingsFeature
     {
         public IReadOnlyDictionary<string, object?> TriggerMetadata { get; }
 
