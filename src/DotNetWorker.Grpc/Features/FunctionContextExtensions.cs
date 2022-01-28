@@ -9,7 +9,7 @@ namespace Microsoft.Azure.Functions.Worker.Grpc.Features
 {
     public static class FunctionContextExtensions
     {
-        public static HttpRequestData? GetHttpRequest(this FunctionContext context)
+        public static HttpRequestData? GetHttpRequestData(this FunctionContext context)
         {
             var feature = context.Features.Get<IFunctionBindingsFeature>();
 
