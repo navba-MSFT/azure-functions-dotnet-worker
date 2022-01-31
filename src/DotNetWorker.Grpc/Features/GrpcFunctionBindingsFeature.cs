@@ -85,9 +85,9 @@ namespace Microsoft.Azure.Functions.Worker.Grpc.Features
         public object? InvocationResult { get; set; }
 
 
-        public void SetOutputBinding(string name, object value)
+        public void SetOutputBindingData(string name, object? value)
         {
-            throw new NotImplementedException();
+            OutputBindingData[name] = value;
         }
 
         private static IReadOnlyDictionary<string, object?> ToReadOnlyDictionary(IDictionary<string, TypedData>? map, FunctionContext context)

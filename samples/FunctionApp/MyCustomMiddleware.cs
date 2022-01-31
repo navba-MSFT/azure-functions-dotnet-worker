@@ -25,12 +25,17 @@ namespace FunctionApp
                 var httpRequest = context.GetHttpRequestData();
                 if (httpRequest != null)
                 {
-                    var response = context.CreateHttpResponse(System.Net.HttpStatusCode.OK);
+                    var response = context.CreateHttpResponse(System.Net.HttpStatusCode.InternalServerError);
                     await response.WriteAsJsonAsync(new { Status = "Failed", ErrorCode = "function-app-500" });
 
-                    // Update response.
                     var feature = context.Features.Get<IFunctionBindingsFeature>();
+
+                    // Update invocation response.
                     feature.InvocationResult = response;
+
+                    // Or output binding data in the case of POCO with multiple output attributes
+                    feature.SetOutputBindingData("Name","foo-bar");
+                    feature.SetOutputBindingData("HttpResponse", response);
 
                     return;
                 }
