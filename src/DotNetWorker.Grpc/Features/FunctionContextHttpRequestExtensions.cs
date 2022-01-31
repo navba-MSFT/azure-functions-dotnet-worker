@@ -24,15 +24,15 @@ namespace Microsoft.Azure.Functions.Worker.Grpc.Features
 
             if (feature == null)
             {
-                throw new InvalidOperationException("FunctionBindingsFeature is missing.");
+                throw new InvalidOperationException($"{nameof(IFunctionBindingsFeature)} is missing.");
             }
 
             HttpRequestData? httpRequestData = null;
             foreach (var input in feature.InputData)
             {
-                if (input.Value is HttpRequestData grpcHttpRequestData)
+                if (input.Value is HttpRequestData httpRequestDataFromInput)
                 {
-                    httpRequestData = grpcHttpRequestData;
+                    httpRequestData = httpRequestDataFromInput;
                     break;
                 }
             }
