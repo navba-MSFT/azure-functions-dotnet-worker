@@ -6,6 +6,9 @@ using Microsoft.Azure.Functions.Worker.OutputBindings;
 
 namespace Microsoft.Azure.Functions.Worker.Context.Features
 {
+    /// <summary>
+    /// Provides the input and output data for a function invocation.
+    /// </summary>
     public interface IFunctionBindingsFeature
     {
         public IReadOnlyDictionary<string, object?> TriggerMetadata { get; }
