@@ -6,7 +6,7 @@ using System.Net;
 using Microsoft.Azure.Functions.Worker.Context.Features;
 using Microsoft.Azure.Functions.Worker.Http;
 
-namespace Microsoft.Azure.Functions.Worker.Grpc.Features
+namespace Microsoft.Azure.Functions.Worker
 {
     /// <summary>
     /// FunctionContext extensions for http invocations.
