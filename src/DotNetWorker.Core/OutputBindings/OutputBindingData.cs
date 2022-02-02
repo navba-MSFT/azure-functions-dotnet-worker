@@ -4,7 +4,7 @@
 namespace Microsoft.Azure.Functions.Worker
 {
     /// <summary>
-    /// A type representing output binding data.
+    /// A type representing an output binding entry.
     /// </summary>
     public class OutputBindingData
     {
@@ -16,17 +16,17 @@ namespace Microsoft.Azure.Functions.Worker
         }
 
         /// <summary>
-        /// Gets the name of the output binding.
+        /// Gets the name of the output binding entry.
         /// </summary>
         public string Name { get; }
 
         /// <summary>
-        /// Gets the value of the output binding.
+        /// Gets the value of the output binding entry.
         /// </summary>
         public object? Value { get; }
 
         /// <summary>
-        /// Gets the type of the output binding.
+        /// Gets the type of the output binding entry.
         /// Ex: "http","queue" etc.
         /// </summary>
         public string? Type { get; }

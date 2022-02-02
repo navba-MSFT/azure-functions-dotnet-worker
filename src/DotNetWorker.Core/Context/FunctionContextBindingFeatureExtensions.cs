@@ -16,7 +16,7 @@ namespace Microsoft.Azure.Functions.Worker
         /// Gets the input binding data for the current function invocation.
         /// </summary>
         /// <param name="context">The function context instance.</param>
-        /// <returns>Gets the input binding data as a read only dictionary.</returns>
+        /// <returns>The input binding data as a read only dictionary.</returns>
         public static IReadOnlyDictionary<string, object?> GetInputData(this FunctionContext context)
         {
             return context.GetBindings().InputData;
@@ -26,7 +26,7 @@ namespace Microsoft.Azure.Functions.Worker
         /// Gets the trigger meta data for the current function invocation.
         /// </summary>
         /// <param name="context">The function context instance.</param>
-        /// <returns>Gets the invocation trigger meta data as a read only dictionary.</returns>
+        /// <returns>The invocation trigger meta data as a read only dictionary.</returns>
         public static IReadOnlyDictionary<string, object?> GetTriggerMetadata(this FunctionContext context)
         {
             return context.GetBindings().TriggerMetadata;
@@ -36,7 +36,7 @@ namespace Microsoft.Azure.Functions.Worker
         /// Gets the invocation result of the current function invocation.
         /// </summary>
         /// <param name="context">The function context instance.</param>
-        /// <returns></returns>
+        /// <returns>The invocation result value.</returns>
         public static object? GetInvocationResult(this FunctionContext context)
         {
             return context.GetBindings().InvocationResult;
@@ -56,34 +56,31 @@ namespace Microsoft.Azure.Functions.Worker
         /// Gets the output binding entries for the current function invocation.
         /// </summary>
         /// <param name="context">The function context instance.</param>
-        /// <returns></returns>
+        /// <returns>Collection of <see cref="OutputBindingData"/></returns>
         public static IEnumerable<OutputBindingData> GetOutputBindings(this FunctionContext context)
         {
-            IFunctionBindingsFeature? bindingsFeature = context.GetBindings();
+            var bindingsFeature = context.GetBindings();
 
-            if (bindingsFeature.OutputBindingData != null)
+            foreach (var data in bindingsFeature.OutputBindingData)
             {
-                foreach (var data in bindingsFeature.OutputBindingData)
+                // Gets binding type (http,queue etc) from function definition.
+                string? bindingType = null;
+                if (context.FunctionDefinition.OutputBindings.TryGetValue(data.Key, out var bindingData))
                 {
-                    // Gets binding type (http,queue etc) from function definition.
-                    string? bindingType = null;
-                    if (context.FunctionDefinition.OutputBindings.TryGetValue(data.Key, out var bindingData))
-                    {
-                        bindingType = bindingData.Type;
-                    }
-
-                    yield return new OutputBindingData(data.Key, data.Value, bindingType);
+                    bindingType = bindingData.Type;
                 }
+
+                yield return new OutputBindingData(data.Key, data.Value, bindingType);
             }
         }
 
         /// <summary>
-        /// Sets the output binding for the current function invocation.
+        /// Sets the value of an output binding entry for the current function invocation.
         /// </summary>
         /// <param name="context">The function context instance.</param>
         /// <param name="name">The name of the output binding entry to set the value for.</param>
-        /// <param name="value">The output binding value.</param>
-        /// <exception cref="InvalidOperationException"></exception>
+        /// <param name="value">The value of the output binding entry.</param>
+        /// <exception cref="InvalidOperationException">Throws if no output binding entry present for the name passed in.</exception>
         public static void SetOutputBinding(this FunctionContext context, string name, object? value)
         {
             var bindingFeature = context.GetBindings();
