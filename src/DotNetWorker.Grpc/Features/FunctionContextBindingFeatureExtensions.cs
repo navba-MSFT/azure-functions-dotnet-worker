@@ -15,8 +15,8 @@ namespace Microsoft.Azure.Functions.Worker
         /// <summary>
         /// Gets the input binding data for the current function invocation.
         /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
+        /// <param name="context">The function context instance.</param>
+        /// <returns>Gets the input binding data as a read only dictionary.</returns>
         public static IReadOnlyDictionary<string, object?> GetInputData(this FunctionContext context)
         {
             return context.GetBindings().InputData;
@@ -25,8 +25,8 @@ namespace Microsoft.Azure.Functions.Worker
         /// <summary>
         /// Gets the trigger meta data for the current function invocation.
         /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
+        /// <param name="context">The function context instance.</param>
+        /// <returns>Gets the invocation trigger meta data as a read only dictionary.</returns>
         public static IReadOnlyDictionary<string, object?> GetTriggerMetadata(this FunctionContext context)
         {
             return context.GetBindings().TriggerMetadata;
@@ -35,7 +35,7 @@ namespace Microsoft.Azure.Functions.Worker
         /// <summary>
         /// Gets the invocation result of the current function invocation.
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">The function context instance.</param>
         /// <returns></returns>
         public static object? GetInvocationResult(this FunctionContext context)
         {
@@ -45,7 +45,7 @@ namespace Microsoft.Azure.Functions.Worker
         /// <summary>
         /// Sets the invocation result of the current function invocation.
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">The function context instance.</param>
         /// <param name="value">The invocation result value.</param>
         public static void SetInvocationResult(this FunctionContext context, object? value)
         {
@@ -55,7 +55,7 @@ namespace Microsoft.Azure.Functions.Worker
         /// <summary>
         /// Gets the output binding entries for the current function invocation.
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">The function context instance.</param>
         /// <returns></returns>
         public static IEnumerable<OutputBindingData> GetOutputBindings(this FunctionContext context)
         {
@@ -80,17 +80,17 @@ namespace Microsoft.Azure.Functions.Worker
         /// <summary>
         /// Sets the output binding for the current function invocation.
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">The function context instance.</param>
         /// <param name="name">The name of the output binding entry to set the value for.</param>
         /// <param name="value">The output binding value.</param>
         /// <exception cref="InvalidOperationException"></exception>
         public static void SetOutputBinding(this FunctionContext context, string name, object? value)
         {
-            var feature = context.GetBindings();
+            var bindingFeature = context.GetBindings();
 
-            if (feature.OutputBindingData.ContainsKey(name))
+            if (bindingFeature.OutputBindingData.ContainsKey(name))
             {
-                feature.OutputBindingData[name] = value;
+                bindingFeature.OutputBindingData[name] = value;
             }
             else
             {

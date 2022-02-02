@@ -16,10 +16,5 @@ namespace Microsoft.Azure.Functions.Worker.Tests.Features
         public OutputBindingsInfo OutputBindingsInfo { get; init; } = EmptyOutputBindingsInfo.Instance;
 
         public object InvocationResult { get; set; }
-
-        public void SetOutputBindingData(string name, object value)
-        {
-            OutputBindingData[name] = value;
-        }
     }
 }

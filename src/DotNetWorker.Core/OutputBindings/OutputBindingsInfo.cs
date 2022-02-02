@@ -6,7 +6,7 @@ namespace Microsoft.Azure.Functions.Worker.OutputBindings
     /// <summary>
     /// Encapsulates the information about all output bindings in a Function
     /// </summary>
-    public abstract class OutputBindingsInfo
+    internal abstract class OutputBindingsInfo
     {
         /// <summary>
         /// Binds output from a function <paramref name="context"/> to the output bindings

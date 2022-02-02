@@ -8,13 +8,20 @@ namespace Microsoft.Azure.Functions.Worker
     /// </summary>
     public class OutputBindingData
     {
+        internal OutputBindingData(string name, object? value, string? type)
+        {
+            Name = name;
+            Value = value;
+            Type = type;
+        }
+
         /// <summary>
         /// Gets the name of the output binding.
         /// </summary>
         public string Name { get; }
 
         /// <summary>
-        /// Gets or sets the value of the output binding.
+        /// Gets the value of the output binding.
         /// </summary>
         public object? Value { get; }
 
@@ -23,12 +30,5 @@ namespace Microsoft.Azure.Functions.Worker
         /// Ex: "http","queue" etc.
         /// </summary>
         public string? Type { get; }
-
-        internal OutputBindingData(string name, object? value, string? type)
-        {
-            Name = name;
-            Value = value;
-            Type = type;
-        }
     }
 }
