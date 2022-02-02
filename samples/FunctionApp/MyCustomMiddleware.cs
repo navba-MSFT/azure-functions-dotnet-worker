@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Net;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Context.Features;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Extensions.Logging;
@@ -18,26 +17,33 @@ namespace FunctionApp
                 await next(context);
             }
             catch (Exception ex)
-            {       
-                context.GetLogger(nameof(MyCustomMiddleware)).LogError(ex,"error in function invocation");
-                
-                // Gets the HttpRequestData instance.
+            {
+                context.GetLogger(nameof(MyCustomMiddleware)).LogError(ex, "error in function invocation");
+                 
+                // To read input/trigger meta data.
+                var inputs = context.GetInputData();
+                var triggerMetaData = context.GetTriggerMetadata();
+
+                // Get http request(null for non http invocations)
                 var httpRequest = context.GetHttpRequestData();
+
                 if (httpRequest != null)
                 {
-                    var response = context.CreateHttpResponse(HttpStatusCode.InternalServerError);
-                    await response.WriteAsJsonAsync(new { Status = "Failed", ErrorCode = "function-app-500" });
+                    var newResponse = httpRequest.CreateResponse();
+                    await newResponse.WriteAsJsonAsync(new { Status = "Failed", ErrorCode = "function-app-500" });
 
-                    var feature = context.Features.Get<IFunctionBindingsFeature>();
+                    // Update invocation result.
+                    context.SetInvocationResult(newResponse);
 
-                    // Update invocation response.
-                    feature.InvocationResult = response;
+                    // OR Read the output bindings and update as needed
+                    var outputBindings = context.GetOutputBindings();
 
-                    // Or output binding data in the case of POCO with multiple output attributes
-                    feature.SetOutputBindingData("Name","foo-bar");
-                    feature.SetOutputBindingData("HttpResponse", response);
+                    // Update the output for queue binding.
+                    var qOutputData = outputBindings.FirstOrDefault(a => a.Type == "queue");
+                    context.SetOutputBinding(qOutputData.Name, "Custom value from middleware");
                 }
             }
         }
     }
 }
+

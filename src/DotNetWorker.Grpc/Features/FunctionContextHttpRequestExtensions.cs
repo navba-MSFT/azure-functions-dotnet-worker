@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
-using System.Net;
 using Microsoft.Azure.Functions.Worker.Context.Features;
 using Microsoft.Azure.Functions.Worker.Http;
 
@@ -20,15 +19,15 @@ namespace Microsoft.Azure.Functions.Worker
         /// <returns>HttpRequestData instance if the invocation is http, else null</returns>
         public static HttpRequestData? GetHttpRequestData(this FunctionContext context)
         {
-            var feature = context.Features.Get<IFunctionBindingsFeature>();
+            var bindingsFeature = context.GetBindings();
 
-            if (feature == null)
+            if (bindingsFeature == null)
             {
                 throw new InvalidOperationException($"{nameof(IFunctionBindingsFeature)} is missing.");
             }
 
             HttpRequestData? httpRequestData = null;
-            foreach (var input in feature.InputData)
+            foreach (var input in bindingsFeature.InputData)
             {
                 if (input.Value is HttpRequestData httpRequestDataFromInput)
                 {
@@ -38,17 +37,6 @@ namespace Microsoft.Azure.Functions.Worker
             }
 
             return httpRequestData;
-        }
-
-        /// <summary>
-        /// Creates a new instance of <see cref="HttpResponseData"/>
-        /// </summary>
-        /// <param name="context">The FunctionContext instance.</param>
-        /// <param name="httpStatusCode">The http status code for the response.</param>
-        /// <returns>HttpResponseData instance.</returns>
-        public static HttpResponseData CreateHttpResponse(this FunctionContext context, HttpStatusCode httpStatusCode)
-        {
-            return new GrpcHttpResponseData(context, httpStatusCode);
         }
     }
 }
