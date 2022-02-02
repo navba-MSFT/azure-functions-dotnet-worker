@@ -39,8 +39,11 @@ namespace FunctionApp
                     var outputBindings = context.GetOutputBindings();
 
                     // Update the output for queue binding.
-                    var qOutputData = outputBindings.FirstOrDefault(a => a.Type == "queue");
-                    context.SetOutputBinding(qOutputData.Name, "Custom value from middleware");
+                    var queueOutputData = outputBindings.FirstOrDefault(a => a.Type == "queue");
+                    if (queueOutputData != null)
+                    {
+                        context.SetOutputBinding(queueOutputData.Name, "Custom value from middleware");
+                    }
                 }
             }
         }
