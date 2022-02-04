@@ -24,8 +24,22 @@ namespace FunctionApp
                 var inputs = context.GetInputData();
                 var triggerMetaData = context.GetTriggerMetadata();
 
+
+                //BindingData<HttpRequestData> httpReq = context.BindInput<HttpRequestData>();
+
+                //BindingData<Blob> b = context.BindInput<Blob>();
+
+                //context.BindInput<string>("productId"); // productId is read from inputbinding ref
+
+                // context needs to expose inputbinding in easy way
+                // context.BindInput overload can take this input binding ref
+                // cache the conversion result.
+                //
+
                 // Get http request(null for non http invocations)
                 var httpRequest = context.GetHttpRequestData();
+
+                
 
                 if (httpRequest != null)
                 {
@@ -36,7 +50,7 @@ namespace FunctionApp
                     context.SetInvocationResult(newResponse);
 
                     // OR Read the output bindings and update as needed
-                    var outputBindings = context.GetOutputBindings();
+                    System.Collections.Generic.IEnumerable<BindingData> outputBindings = context.GetOutputBindings();
 
                     // Update the output for queue binding.
                     var queueOutputData = outputBindings.FirstOrDefault(a => a.Type == "queue");

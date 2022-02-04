@@ -6,9 +6,9 @@ namespace Microsoft.Azure.Functions.Worker
     /// <summary>
     /// A type representing an output binding entry.
     /// </summary>
-    public class OutputBindingData
+    public class BindingData
     {
-        internal OutputBindingData(string name, object? value, string? type)
+        internal BindingData(string name, object? value, string? type)
         {
             Name = name;
             Value = value;

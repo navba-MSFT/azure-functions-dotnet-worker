@@ -56,8 +56,8 @@ namespace Microsoft.Azure.Functions.Worker
         /// Gets the output binding entries for the current function invocation.
         /// </summary>
         /// <param name="context">The function context instance.</param>
-        /// <returns>Collection of <see cref="OutputBindingData"/></returns>
-        public static IEnumerable<OutputBindingData> GetOutputBindings(this FunctionContext context)
+        /// <returns>Collection of <see cref="BindingData"/></returns>
+        public static IEnumerable<BindingData> GetOutputBindings(this FunctionContext context)
         {
             var bindingsFeature = context.GetBindings();
 
@@ -70,7 +70,7 @@ namespace Microsoft.Azure.Functions.Worker
                     bindingType = bindingData.Type;
                 }
 
-                yield return new OutputBindingData(data.Key, data.Value, bindingType);
+                yield return new BindingData(data.Key, data.Value, bindingType);
             }
         }
 
