@@ -9,6 +9,11 @@ namespace Microsoft.Azure.Functions.Worker
     public abstract class BindingMetadata
     {
         /// <summary>
+        /// this usually is the param name.
+        /// </summary>
+        public abstract string Name { get; }
+
+        /// <summary>
         /// The type of the binding. For example, "httpTrigger".
         /// </summary>
         public abstract string Type { get; }

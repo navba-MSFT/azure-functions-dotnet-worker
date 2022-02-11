@@ -3,7 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker.Context.Features;
+using Microsoft.Azure.Functions.Worker.Converters;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Azure.Functions.Worker
 {
@@ -32,6 +36,95 @@ namespace Microsoft.Azure.Functions.Worker
             return context.GetBindings().TriggerMetadata;
         }
 
+        public async static Task<object> BindInput(this FunctionContext context, BindingMetadata bindingMetadata)
+        {
+            // find the parameter from function definition for the bindingMetadata requested.
+            // Use that parameter definition(which has Type) to get converted value.
+
+            Type paramType;
+            FunctionParameter parameter = null;
+            foreach (var param in context.FunctionDefinition.Parameters)
+            {
+                if (param.Name==bindingMetadata.Name)
+                {                    
+                    parameter = param;
+                    paramType= param.Type;
+                    break;
+                }
+            }
+            if (parameter != null)
+            {
+                var ts = await GetConvertedValueFromFeature(context, parameter);
+                var result = new BindingData<object>(context, bindingMetadata.Name, ts, bindingMetadata.Type);
+
+                return result;
+            }
+            return default;
+
+        }
+        public async static Task<BindingData<T>> BindInput<T>(this FunctionContext context)
+        {
+            var inputType = typeof(T);
+
+            // find the parameter from function definition for the Type requested.
+            // Use that parameter definition(which has Type) to get converted value.
+
+
+            FunctionParameter parameter = null;
+            foreach (var param in context.FunctionDefinition.Parameters)
+            {
+                if (param.Type == inputType)
+                {
+                    if (parameter != null)
+                    {
+                        // means more than one parameter found with the type requested.
+                        // customer should use the other API.
+                        throw new InvalidOperationException("!@#$ Use the other BindInput overload");
+                    }
+                    parameter = param;
+                }
+            }
+
+
+            if (parameter != null)
+            {
+
+                var ipbindsin= context.FunctionDefinition.InputBindings;
+                var inputBinding = ipbindsin.First(a=>a.Key == parameter.Name);
+
+                var ts = await GetConvertedValueFromFeature(context, parameter);
+
+                T tts= (T)ts;
+                var result = new BindingData<T>(context, inputBinding.Value.Name, tts, inputBinding.Value.Type);
+
+                return result;
+            }
+
+            return default;
+        }
+
+        private static async Task<object> GetConvertedValueFromFeature(FunctionContext context, FunctionParameter parameter)
+        {
+            IFunctionBindingsFeature functionBindings = context.GetBindings();
+
+            var converterContextFactory = context.InstanceServices.GetService<IConverterContextFactory>();
+
+            var inputConversionFeature = context.Features.Get<IInputConversionFeature>();
+
+            // Check InputData first, then TriggerMetadata
+            if (!functionBindings.InputData.TryGetValue(parameter.Name, out object? source))
+            {
+                functionBindings.TriggerMetadata.TryGetValue(parameter.Name, out source);
+            }
+
+            var converterContext = converterContextFactory!.Create(parameter.Type, source, context);
+
+            var bindingResult = await inputConversionFeature!.ConvertAsync(converterContext);
+            object ts = bindingResult.Value;
+            return ts;
+        }
+
+
         /// <summary>
         /// Gets the invocation result of the current function invocation.
         /// </summary>
@@ -56,8 +149,8 @@ namespace Microsoft.Azure.Functions.Worker
         /// Gets the output binding entries for the current function invocation.
         /// </summary>
         /// <param name="context">The function context instance.</param>
-        /// <returns>Collection of <see cref="BindingData"/></returns>
-        public static IEnumerable<BindingData> GetOutputBindings(this FunctionContext context)
+        /// <returns>Collection of <see cref="BindingData1"/></returns>
+        public static IEnumerable<BindingData<object>> GetOutputBindings(this FunctionContext context)
         {
             var bindingsFeature = context.GetBindings();
 
@@ -69,8 +162,9 @@ namespace Microsoft.Azure.Functions.Worker
                 {
                     bindingType = bindingData.Type;
                 }
+                //yield return new BindingData1(data.Key, data.Value, bindingType);
 
-                yield return new BindingData(data.Key, data.Value, bindingType);
+                yield return new BindingData<object>(context, data.Key, data.Value, bindingType);
             }
         }
 

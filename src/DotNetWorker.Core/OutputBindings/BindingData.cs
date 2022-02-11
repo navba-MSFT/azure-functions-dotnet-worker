@@ -3,30 +3,41 @@
 
 namespace Microsoft.Azure.Functions.Worker
 {
-    /// <summary>
-    /// A type representing an output binding entry.
-    /// </summary>
-    public class BindingData
+    public class BindingData<T>
     {
-        internal BindingData(string name, object? value, string? type)
+        internal BindingData(FunctionContext functionContext, string name, T value, string? type)
         {
+            _functionContext = functionContext;
             Name = name;
-            Value = value;
+            _value = value;
             Type = type;
         }
+        private T _value;
+        private readonly FunctionContext _functionContext;
 
         /// <summary>
-        /// Gets the name of the output binding entry.
+        /// Gets the name of the binding entry.
         /// </summary>
         public string Name { get; }
 
         /// <summary>
-        /// Gets the value of the output binding entry.
+        /// Gets the value of the binding entry.
         /// </summary>
-        public object? Value { get; }
+        public T Value
+        {
+            get
+            {
+                return _value;
+            } 
+            set
+            {
+                _value=value;
+                _functionContext.GetBindings().OutputBindingData[Name] = value;                
+            }
+        }
 
         /// <summary>
-        /// Gets the type of the output binding entry.
+        /// Gets the type of the binding entry.
         /// Ex: "http","queue" etc.
         /// </summary>
         public string? Type { get; }

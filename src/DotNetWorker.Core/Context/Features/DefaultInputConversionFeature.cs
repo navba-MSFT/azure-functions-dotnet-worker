@@ -14,6 +14,8 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
     /// </summary>
     internal sealed class DefaultInputConversionFeature : IInputConversionFeature
     {
+
+
         private readonly IInputConverterProvider _inputConverterProvider;
         private static readonly Type _inputConverterAttributeType = typeof(InputConverterAttribute);
 
@@ -27,6 +29,25 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
             _inputConverterProvider = inputConverterProvider ?? throw new ArgumentNullException(nameof(inputConverterProvider));
         }
 
+        // This cache should be per invocation, not static
+        private ConcurrentDictionary<string, ConversionResult> conversionResult
+            = new ConcurrentDictionary<string, ConversionResult>();
+
+
+        public string GetCacheKey(ConverterContext converterContext)
+        {
+           var t= converterContext.TargetType.Name +"_"+
+                converterContext.FunctionContext.InvocationId + "_" +
+                converterContext.Source;
+
+            foreach(var prop in converterContext.Properties)
+            {
+                t+=prop.Key;
+            }
+
+            return t;
+        }
+
         /// <summary>
         /// Executes a conversion operation with the context information provided.
         /// </summary>
@@ -34,6 +55,21 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
         /// <returns>An instance of <see cref="ConversionResult"/> representing the result of the conversion.</returns>
         public async ValueTask<ConversionResult> ConvertAsync(ConverterContext converterContext)
         {
+            var key= GetCacheKey(converterContext);
+
+            if (conversionResult.TryGetValue(key, out ConversionResult result))
+            {
+                return result;
+            }
+
+            var t = await NewMethod(converterContext);
+            conversionResult[key] = t;
+            return t;
+        }
+
+        private async ValueTask<ConversionResult> NewMethod(ConverterContext converterContext)
+        {
+
             // Check a converter is explicitly specified via the converter context. If so, use that.
             IInputConverter? converterFromContext = GetConverterFromContext(converterContext);
 

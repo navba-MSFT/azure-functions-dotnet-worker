@@ -21,7 +21,8 @@ namespace FunctionApp
                 .ConfigureFunctionsWorkerDefaults(workerApplication =>
                 {
                     // Register our custom middleware with the worker
-                    workerApplication.UseMiddleware<MyCustomMiddleware>();
+                    workerApplication.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+                    workerApplication.UseMiddleware<QueueMessageValidationMiddleware>();
                 })
                 //</docsnippet_configure_defaults>
                 //<docsnippet_dependency_injection>
