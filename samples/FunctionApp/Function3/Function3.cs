@@ -26,7 +26,7 @@ namespace FunctionApp
 
     public class MyOutputType
     {
-        [QueueOutput("functionstesting2", Connection = "AzureWebJobsStorage")]
+        [QueueOutput("functionstesting2", Connection = "MyStorageConnStr")]
         public string Name { get; set; }
 
         public HttpResponseData HttpResponse { get; set; }

@@ -9,8 +9,9 @@ namespace FunctionApp
     public static class Function2
     {
         [Function("Function2")]
-        public static Book Run([QueueTrigger("functionstesting2", Connection = "AzureWebJobsStorage")] Book myQueueItem,
-            [BlobInput("test-samples/sample1.txt", Connection = "AzureWebJobsStorage")] string myBlob)
+        public static Book Run(
+            [QueueTrigger("functionstesting2", Connection = "MyStorageConnStr")] Book myQueueItem,
+            [BlobInput("test-samples/sample1.txt", Connection = "MyStorageConnStr")] string myBlob)
         {
             Console.WriteLine(myBlob);
             return myQueueItem;
