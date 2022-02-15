@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker.Http;
 
 namespace Microsoft.Azure.Functions.Worker
@@ -15,21 +16,9 @@ namespace Microsoft.Azure.Functions.Worker
         /// </summary>
         /// <param name="context">The FunctionContext instance.</param>
         /// <returns>HttpRequestData instance if the invocation is http, else null</returns>
-        public static HttpRequestData? GetHttpRequestData(this FunctionContext context)
+        public static async Task<HttpRequestData?> GetHttpRequestData(this FunctionContext context)
         {
-            var bindingsFeature = context.GetBindings();
-
-            HttpRequestData? httpRequestData = null;
-            foreach (var input in bindingsFeature.InputData)
-            {
-                if (input.Value is HttpRequestData httpRequestDataFromInput)
-                {
-                    httpRequestData = httpRequestDataFromInput;
-                    break;
-                }
-            }
-
-            return httpRequestData;
+            return await context.BindInputAsync<HttpRequestData>();
         }
     }
 }

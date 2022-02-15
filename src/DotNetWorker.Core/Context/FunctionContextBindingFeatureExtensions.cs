@@ -36,41 +36,50 @@ namespace Microsoft.Azure.Functions.Worker
             return context.GetBindings().TriggerMetadata;
         }
 
-        public async static Task<object> BindInput(this FunctionContext context, BindingMetadata bindingMetadata)
+        /// <summary>
+        /// Binds the 
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="bindingMetadata"></param>
+        /// <returns></returns>
+        public static async Task<object?> BindInput(this FunctionContext context, BindingMetadata bindingMetadata)
         {
             // find the parameter from function definition for the bindingMetadata requested.
             // Use that parameter definition(which has Type) to get converted value.
 
-            Type paramType;
-            FunctionParameter parameter = null;
+            FunctionParameter? parameter = null;
             foreach (var param in context.FunctionDefinition.Parameters)
             {
-                if (param.Name==bindingMetadata.Name)
+                if (param.Name == bindingMetadata.Name)
                 {                    
                     parameter = param;
-                    paramType= param.Type;
                     break;
                 }
             }
             if (parameter != null)
             {
                 var ts = await GetConvertedValueFromFeature(context, parameter);
-                var result = new BindingData<object>(context, bindingMetadata.Name, ts, bindingMetadata.Type);
-
-                return result;
+                return ts;
             }
-            return default;
 
+            return null;
         }
-        public async static Task<BindingData<T>> BindInput<T>(this FunctionContext context)
+
+        /// <summary>
+        /// Binds an input item for the requested type.
+        /// </summary>
+        /// <typeparam name="T">The type of input item to bind to.</typeparam>
+        /// <param name="context">The function context.</param>
+        /// <returns>An instance of <see cref="OutputBindingData{T}"/> if binding was successful, else null</returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static async Task<T?> BindInputAsync<T>(this FunctionContext context)
         {
             var inputType = typeof(T);
 
             // find the parameter from function definition for the Type requested.
             // Use that parameter definition(which has Type) to get converted value.
 
-
-            FunctionParameter parameter = null;
+            FunctionParameter? parameter = null;
             foreach (var param in context.FunctionDefinition.Parameters)
             {
                 if (param.Type == inputType)
@@ -78,26 +87,23 @@ namespace Microsoft.Azure.Functions.Worker
                     if (parameter != null)
                     {
                         // means more than one parameter found with the type requested.
-                        // customer should use the other API.
-                        throw new InvalidOperationException("!@#$ Use the other BindInput overload");
+                        // customer should use the other overload of this method with an explicit BindingMetadata instance.
+                        throw new InvalidOperationException("More than one binding item found for the requested Type. Use the BindInput overload which takes an instance of BindingMetadata.");
                     }
                     parameter = param;
                 }
             }
 
-
             if (parameter != null)
             {
-
-                var ipbindsin= context.FunctionDefinition.InputBindings;
-                var inputBinding = ipbindsin.First(a=>a.Key == parameter.Name);
+                var inputBinding = context.FunctionDefinition.InputBindings.First(a => a.Key == parameter.Name);
 
                 var ts = await GetConvertedValueFromFeature(context, parameter);
 
                 T tts= (T)ts;
-                var result = new BindingData<T>(context, inputBinding.Value.Name, tts, inputBinding.Value.Type);
+                //var result = new BindingData<T>(context, inputBinding.Value.Name, tts, inputBinding.Value.Type);
 
-                return result;
+                return tts;
             }
 
             return default;
@@ -150,7 +156,7 @@ namespace Microsoft.Azure.Functions.Worker
         /// </summary>
         /// <param name="context">The function context instance.</param>
         /// <returns>Collection of <see cref="BindingData1"/></returns>
-        public static IEnumerable<BindingData<object>> GetOutputBindings(this FunctionContext context)
+        public static IEnumerable<OutputBindingData> GetOutputBindings(this FunctionContext context)
         {
             var bindingsFeature = context.GetBindings();
 
@@ -162,31 +168,9 @@ namespace Microsoft.Azure.Functions.Worker
                 {
                     bindingType = bindingData.Type;
                 }
-                //yield return new BindingData1(data.Key, data.Value, bindingType);
 
-                yield return new BindingData<object>(context, data.Key, data.Value, bindingType);
+                yield return new OutputBindingData(context, data.Key, data.Value, bindingType);
             }
-        }
-
-        /// <summary>
-        /// Sets the value of an output binding entry for the current function invocation.
-        /// </summary>
-        /// <param name="context">The function context instance.</param>
-        /// <param name="name">The name of the output binding entry to set the value for.</param>
-        /// <param name="value">The value of the output binding entry.</param>
-        /// <exception cref="InvalidOperationException">Throws if no output binding entry present for the name passed in.</exception>
-        public static void SetOutputBinding(this FunctionContext context, string name, object? value)
-        {
-            var bindingFeature = context.GetBindings();
-
-            if (bindingFeature.OutputBindingData.ContainsKey(name))
-            {
-                bindingFeature.OutputBindingData[name] = value;
-            }
-            else
-            {
-                throw new InvalidOperationException($"Output binding entry not present for {name}");
-            }
-        }
+        }        
     }
 }

@@ -33,7 +33,7 @@ namespace FunctionApp
 
                 //object b = await context.BindInput(firstBinding.Value);
 
-                var book =  await context.BindInput<Book>();
+                var book =  await context.BindInputAsync<Book>();
 
                 if (book != null)
                 {
@@ -49,16 +49,10 @@ namespace FunctionApp
 
                 await next(context);
 
-                var outputBindings = context.GetOutputBindings().ToArray();
-
-                //outputBindings.First().Value
-
             }
             catch (Exception ex)
             {
                 context.GetLogger(nameof(QueueMessageValidationMiddleware)).LogError(ex, "error in function invocation");
-
-
 
                 //BindingData<HttpRequestData> httpReq = context.BindInput<HttpRequestData>();
 
@@ -72,9 +66,7 @@ namespace FunctionApp
                 //
 
                 // Get http request(null for non http invocations)
-                var httpRequest = context.GetHttpRequestData();
-
-
+                var httpRequest = await context.BindInputAsync<HttpRequestData>();
 
                 if (httpRequest != null)
                 {
@@ -85,13 +77,13 @@ namespace FunctionApp
                     context.SetInvocationResult(newResponse);
 
                     // OR Read the output bindings and update as needed
-                    System.Collections.Generic.IEnumerable<BindingData<object>> outputBindings = context.GetOutputBindings();
+                    IEnumerable<OutputBindingData> outputBindings = context.GetOutputBindings();
 
                     // Update the output for queue binding.
-                    var queueOutputData = outputBindings.FirstOrDefault(a => a.Type == "queue");
+                    var queueOutputData = outputBindings.FirstOrDefault(a => a.BindingType == "queue");
                     if (queueOutputData != null)
                     {
-                        context.SetOutputBinding(queueOutputData.Name, "Custom value from middleware");
+                        queueOutputData.Value = "Custom value from middleware";
                     }
                 }
             }

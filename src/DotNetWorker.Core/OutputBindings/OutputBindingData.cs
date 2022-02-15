@@ -2,17 +2,17 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 namespace Microsoft.Azure.Functions.Worker
-{
-    public class BindingData<T>
+{    
+    public sealed class OutputBindingData
     {
-        internal BindingData(FunctionContext functionContext, string name, T value, string? type)
+        internal OutputBindingData(FunctionContext functionContext, string name, object? value, string? bindingType)
         {
             _functionContext = functionContext;
-            Name = name;
             _value = value;
-            Type = type;
+            Name = name;
+            BindingType = bindingType;
         }
-        private T _value;
+        private object? _value;
         private readonly FunctionContext _functionContext;
 
         /// <summary>
@@ -21,9 +21,9 @@ namespace Microsoft.Azure.Functions.Worker
         public string Name { get; }
 
         /// <summary>
-        /// Gets the value of the binding entry.
+        /// Gets or sets the value of the binding entry.
         /// </summary>
-        public T Value
+        public object? Value
         {
             get
             {
@@ -32,7 +32,7 @@ namespace Microsoft.Azure.Functions.Worker
             set
             {
                 _value=value;
-                _functionContext.GetBindings().OutputBindingData[Name] = value;                
+                _functionContext.GetBindings().OutputBindingData[Name] = value;
             }
         }
 
@@ -40,6 +40,6 @@ namespace Microsoft.Azure.Functions.Worker
         /// Gets the type of the binding entry.
         /// Ex: "http","queue" etc.
         /// </summary>
-        public string? Type { get; }
+        public string? BindingType { get; }
     }
 }

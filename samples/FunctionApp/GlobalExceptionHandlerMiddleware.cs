@@ -27,10 +27,10 @@ namespace FunctionApp
             {
                 _logger.LogError(ex, "Error processing invocation");
 
-                var httpReqBindingData = await  context.BindInput<HttpRequestData>();
+                var httpReqBindingData = await context.BindInputAsync<HttpRequestData>();
                 if (httpReqBindingData != null)
                 {
-                    var newResponse = httpReqBindingData.Value.CreateResponse();
+                    var newResponse = httpReqBindingData.CreateResponse();
                     await newResponse.WriteAsJsonAsync(new { Status = "Failed", ErrorCode = "function-app-500" });
 
                     // Update invocation result.
