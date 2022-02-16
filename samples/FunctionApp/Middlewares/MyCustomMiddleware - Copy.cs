@@ -17,8 +17,8 @@ namespace FunctionApp
             try
             {
                 //// To read input/trigger meta data.
-                //var inputs = context.GetInputData();
-                //var triggerMetaData = context.GetTriggerMetadata();
+                var inputs = context.GetInputData();
+                var triggerMetaData = context.GetTriggerMetadata();
 
 
                 //var bindingData = context.BindingContext.BindingData;
@@ -74,7 +74,7 @@ namespace FunctionApp
                     await newResponse.WriteAsJsonAsync(new { Status = "Failed", ErrorCode = "function-app-500" });
 
                     // Update invocation result.
-                    context.SetInvocationResult(newResponse);
+                    //context.SetInvocationResult(newResponse);
 
                     // OR Read the output bindings and update as needed
                     IEnumerable<OutputBindingData> outputBindings = context.GetOutputBindings();

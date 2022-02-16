@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Grpc.Core;
 using Microsoft.Azure.Functions.Worker;
@@ -28,17 +30,34 @@ namespace FunctionApp
                 _logger.LogError(ex, "Error processing invocation");
 
                 var httpReqBindingData = await context.BindInputAsync<HttpRequestData>();
+
+
                 if (httpReqBindingData != null)
                 {
                     var newResponse = httpReqBindingData.CreateResponse();
                     await newResponse.WriteAsJsonAsync(new { Status = "Failed", ErrorCode = "function-app-500" });
 
                     // Update invocation result.
-                    context.SetInvocationResult(newResponse);
+                    var httpResponseData = context.GetInvocationResultData<HttpResponseData>();
+                    httpResponseData.Value = newResponse;
+
+                    //context.SetInvocationResult(newResponse);
+
+                    // OR Read the output bindings and update as needed
+                    IEnumerable<OutputBindingData> outputBindings = context.GetOutputBindings();
+
+                    // Update the output for queue binding.
+                    var queueOutputData = outputBindings.FirstOrDefault(a => a.BindingType == "queue");
+                    if (queueOutputData != null)
+                    {
+                        queueOutputData.Value = "Custom value from middleware";
+                    }
                 }    
                 else
                 {
-                    context.SetInvocationResult(new { ProcessingStatus="Unhealthy" });
+                    var httpResponseData = context.GetInvocationResultData<object>();
+                    httpResponseData.Value = new { ProcessingStatus = "Unhealthy" };
+                    //context.SetInvocationResult(new { ProcessingStatus="Unhealthy" });
                 }
             }
         }

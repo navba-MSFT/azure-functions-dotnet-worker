@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 namespace Microsoft.Azure.Functions.Worker
-{    
+{
     public sealed class OutputBindingData
     {
         internal OutputBindingData(FunctionContext functionContext, string name, object? value, string? bindingType)
@@ -25,13 +25,10 @@ namespace Microsoft.Azure.Functions.Worker
         /// </summary>
         public object? Value
         {
-            get
-            {
-                return _value;
-            } 
+            get => _value;
             set
             {
-                _value=value;
+                _value = value;
                 _functionContext.GetBindings().OutputBindingData[Name] = value;
             }
         }

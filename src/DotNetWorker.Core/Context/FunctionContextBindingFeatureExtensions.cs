@@ -100,10 +100,7 @@ namespace Microsoft.Azure.Functions.Worker
 
                 var ts = await GetConvertedValueFromFeature(context, parameter);
 
-                T tts= (T)ts;
-                //var result = new BindingData<T>(context, inputBinding.Value.Name, tts, inputBinding.Value.Type);
-
-                return tts;
+                return (T)ts;
             }
 
             return default;
@@ -126,8 +123,7 @@ namespace Microsoft.Azure.Functions.Worker
             var converterContext = converterContextFactory!.Create(parameter.Type, source, context);
 
             var bindingResult = await inputConversionFeature!.ConvertAsync(converterContext);
-            object ts = bindingResult.Value;
-            return ts;
+            return bindingResult.Value;
         }
 
 
@@ -136,20 +132,41 @@ namespace Microsoft.Azure.Functions.Worker
         /// </summary>
         /// <param name="context">The function context instance.</param>
         /// <returns>The invocation result value.</returns>
-        public static object? GetInvocationResult(this FunctionContext context)
+        //public static object? GetInvocationResult(this FunctionContext context)
+        //{
+        //    return context.GetBindings().InvocationResult;
+        //}
+
+        public static T? GetInvocationResult<T>(this FunctionContext context)
         {
-            return context.GetBindings().InvocationResult;
+            if (context.GetBindings().InvocationResult is T t)
+            {
+                return t;
+            }
+
+            return default;
         }
+
+        public static InvocationResult<T>? GetInvocationResultData<T>(this FunctionContext context)
+        {
+            if (context.GetBindings().InvocationResult is T t)
+            {
+                return new InvocationResult<T>(context, t);
+            }
+
+            return default;
+        }
+
 
         /// <summary>
         /// Sets the invocation result of the current function invocation.
         /// </summary>
         /// <param name="context">The function context instance.</param>
         /// <param name="value">The invocation result value.</param>
-        public static void SetInvocationResult(this FunctionContext context, object? value)
-        {
-            context.GetBindings().InvocationResult = value;
-        }
+        //public static void SetInvocationResult(this FunctionContext context, object? value)
+        //{
+        //    context.GetBindings().InvocationResult = value;
+        //}
 
         /// <summary>
         /// Gets the output binding entries for the current function invocation.

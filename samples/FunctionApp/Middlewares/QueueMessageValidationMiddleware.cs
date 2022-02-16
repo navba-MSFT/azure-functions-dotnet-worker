@@ -4,7 +4,6 @@ using Microsoft.Azure.Functions.Worker.Middleware;
 
 namespace FunctionApp
 {
-
     public sealed class QueueMessageValidationMiddleware : IFunctionsWorkerMiddleware
     {
         public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
@@ -18,6 +17,9 @@ namespace FunctionApp
                     return;
                 }
             }
+
+            var inputs = context.GetInputData();
+            var triggerMetaData = context.GetTriggerMetadata();
 
             await next(context);
         }
