@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Grpc.Core;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker.Middleware;
@@ -12,7 +10,7 @@ namespace FunctionApp
 {
     public sealed class GlobalExceptionHandlerMiddleware : IFunctionsWorkerMiddleware
     {
-        ILogger<GlobalExceptionHandlerMiddleware> _logger;
+        readonly ILogger<GlobalExceptionHandlerMiddleware> _logger;
 
         public GlobalExceptionHandlerMiddleware(ILogger<GlobalExceptionHandlerMiddleware> logger)
         {
@@ -29,25 +27,20 @@ namespace FunctionApp
             {
                 _logger.LogError(ex, "Error processing invocation");
 
-                var httpReqBindingData = await context.BindInputAsync<HttpRequestData>();
+                var httpReqData = await context.BindInputAsync<HttpRequestData>();
 
-
-                if (httpReqBindingData != null)
+                if (httpReqData != null)
                 {
-                    var newResponse = httpReqBindingData.CreateResponse();
+                    var newResponse = httpReqData.CreateResponse();
                     await newResponse.WriteAsJsonAsync(new { Status = "Failed", ErrorCode = "function-app-500" });
 
                     // Update invocation result.
-                    var httpResponseData = context.GetInvocationResultData<HttpResponseData>();
+                    var httpResponseData = context.GetInvocationResult<HttpResponseData>();
                     httpResponseData.Value = newResponse;
 
-                    //context.SetInvocationResult(newResponse);
 
                     // OR Read the output bindings and update as needed
-                    IEnumerable<OutputBindingData> outputBindings = context.GetOutputBindings();
-
-                    // Update the output for queue binding.
-                    var queueOutputData = outputBindings.FirstOrDefault(a => a.BindingType == "queue");
+                    var queueOutputData = context.GetOutputBindings().FirstOrDefault(a => a.BindingType == "queue");
                     if (queueOutputData != null)
                     {
                         queueOutputData.Value = "Custom value from middleware";
@@ -55,9 +48,7 @@ namespace FunctionApp
                 }    
                 else
                 {
-                    var httpResponseData = context.GetInvocationResultData<object>();
-                    httpResponseData.Value = new { ProcessingStatus = "Unhealthy" };
-                    //context.SetInvocationResult(new { ProcessingStatus="Unhealthy" });
+                    context.GetInvocationResult<object>().Value = new { ProcessingStatus = "Unhealthy" };
                 }
             }
         }

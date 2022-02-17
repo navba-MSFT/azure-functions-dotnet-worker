@@ -23,7 +23,7 @@ namespace FunctionApp
                     // Register our custom middleware with the worker
                     workerApplication.UseMiddleware<GlobalExceptionHandlerMiddleware>();
                     workerApplication.UseMiddleware<QueueMessageValidationMiddleware>();
-                    workerApplication.UseMiddleware<StampHeadersMiddleware>();
+                    workerApplication.UseMiddleware<StampHttpHeadersMiddleware>();
                 })
                 //</docsnippet_configure_defaults>
                 //<docsnippet_dependency_injection>

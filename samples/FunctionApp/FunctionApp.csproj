@@ -35,7 +35,4 @@
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Middlewares\" />
-  </ItemGroup>
 </Project>

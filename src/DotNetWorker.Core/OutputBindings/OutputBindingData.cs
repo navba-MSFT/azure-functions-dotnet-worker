@@ -3,15 +3,19 @@
 
 namespace Microsoft.Azure.Functions.Worker
 {
+    /// <summary>
+    /// A type representing the output binding data.
+    /// </summary>
     public sealed class OutputBindingData
     {
-        internal OutputBindingData(FunctionContext functionContext, string name, object? value, string? bindingType)
+        internal OutputBindingData(FunctionContext functionContext, string name, object? value, string bindingType)
         {
             _functionContext = functionContext;
             _value = value;
             Name = name;
             BindingType = bindingType;
         }
+
         private object? _value;
         private readonly FunctionContext _functionContext;
 
@@ -37,6 +41,6 @@ namespace Microsoft.Azure.Functions.Worker
         /// Gets the type of the binding entry.
         /// Ex: "http","queue" etc.
         /// </summary>
-        public string? BindingType { get; }
+        public string BindingType { get; }
     }
 }
