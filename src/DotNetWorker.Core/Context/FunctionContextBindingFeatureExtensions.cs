@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker.Context.Features;
 using Microsoft.Azure.Functions.Worker.Converters;
@@ -53,7 +52,7 @@ namespace Microsoft.Azure.Functions.Worker
             FunctionParameter? parameter = null;
             foreach (var param in context.FunctionDefinition.Parameters)
             {
-                if (param.Type == inputType)
+                if (param.Type.IsAssignableFrom(inputType))
                 {
                     if (parameter != null)
                     {
@@ -105,9 +104,6 @@ namespace Microsoft.Azure.Functions.Worker
             return default;
         }
 
-
-
-
         /// <summary>
         /// Gets the invocation result of the current function invocation.
         /// </summary>
@@ -137,7 +133,7 @@ namespace Microsoft.Azure.Functions.Worker
         /// Gets the output binding entries for the current function invocation.
         /// </summary>
         /// <param name="context">The function context instance.</param>
-        /// <returns>Collection of <see cref="BindingData1"/></returns>
+        /// <returns>Collection of <see cref="OutputBindingData"/></returns>
         public static IEnumerable<OutputBindingData> GetOutputBindings(this FunctionContext context)
         {
             var bindingsFeature = context.GetBindings();

@@ -21,9 +21,10 @@ namespace FunctionApp
                 .ConfigureFunctionsWorkerDefaults(workerApplication =>
                 {
                     // Register our custom middleware with the worker
+                    workerApplication.UseMiddleware<StampHttpHeadersMiddleware>();
                     workerApplication.UseMiddleware<GlobalExceptionHandlerMiddleware>();
                     workerApplication.UseMiddleware<QueueMessageValidationMiddleware>();
-                    workerApplication.UseMiddleware<StampHttpHeadersMiddleware>();
+                    workerApplication.UseMiddleware<CosmosMiddleware>();
                 })
                 //</docsnippet_configure_defaults>
                 //<docsnippet_dependency_injection>
