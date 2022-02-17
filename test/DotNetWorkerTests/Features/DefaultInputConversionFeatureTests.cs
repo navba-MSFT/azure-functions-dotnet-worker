@@ -118,7 +118,7 @@ namespace Microsoft.Azure.Functions.Worker.Tests.Features
         private DefaultConverterContext CreateConverterContext(Type targetType, object source, IReadOnlyDictionary<string, object> properties = null)
         {
             var definition = new TestFunctionDefinition();
-            var functionContext = new TestFunctionContext(definition, null);
+            var functionContext = new TestFunctionContext(definition, new TestFunctionInvocation(id: "1234", functionId: "test"));
 
             return new DefaultConverterContext(targetType, source, functionContext, properties ?? ImmutableDictionary<string, object>.Empty);
         }
