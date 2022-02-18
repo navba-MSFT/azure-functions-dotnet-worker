@@ -14,7 +14,5 @@ namespace Microsoft.Azure.Functions.Worker.Tests
         public override string Type { get; }
 
         public override BindingDirection Direction { get; }
-
-        public override string Name { get; }
     }
 }

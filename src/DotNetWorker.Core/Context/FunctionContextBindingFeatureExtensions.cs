@@ -57,43 +57,24 @@ namespace Microsoft.Azure.Functions.Worker
                     if (parameter != null)
                     {
                         // More than one parameter found with the type requested.
-                        // customer should use the other overload of this method with an explicit BindingMetadata instance.
-                        throw new InvalidOperationException("More than one binding item found for the requested Type. Use the BindInput overload which takes an instance of BindingMetadata.");
+                        // customer should use the other overload of this method with an explicit FunctionParameter instance.
+                        throw new InvalidOperationException("More than one binding item found for the requested Type. Use the BindInput overload which takes an instance of FunctionParameter");
                     }
                     parameter = param;
                 }
             }
 
-            if (parameter != null)
-            {
-                var convertedValue = await GetConvertedValueFromInputConversionFeature(context, parameter);
-
-                return (T)convertedValue;
-            }
-
-            return default;
+            return await BindInputAsync<T>(context,parameter);
         }
 
         /// <summary>
-        /// Binds an input item for the requested binding meta data item.
+        /// Binds an input item for the requested function parameter.
         /// </summary>
         /// <param name="context">The function context.</param>
-        /// <param name="bindingMetadata"></param>
+        /// <param name="parameter">The function parameter for which input data should bound to.</param>
         /// <returns></returns>
-        public static async Task<T?> BindInput<T>(this FunctionContext context, BindingMetadata bindingMetadata)
+        public static async Task<T?> BindInputAsync<T>(this FunctionContext context, FunctionParameter parameter)
         {
-            // find the parameter from function definition for the bindingMetadata requested.
-            // Use that parameter definition(which has Type) to get converted value.
-
-            FunctionParameter? parameter = null;
-            foreach (var param in context.FunctionDefinition.Parameters)
-            {
-                if (param.Name == bindingMetadata.Name)
-                {                    
-                    parameter = param;
-                    break;
-                }
-            }
             if (parameter != null)
             {
                 var convertedValue = await GetConvertedValueFromInputConversionFeature(context, parameter);
@@ -117,16 +98,6 @@ namespace Microsoft.Azure.Functions.Worker
             }
 
             return default;
-        }
-
-        /// <summary>
-        /// Gets the invocation result of the current function invocation.
-        /// </summary>
-        /// <param name="context">The function context instance.</param>
-        /// <returns>The invocation result value.</returns>
-        public static InvocationResult<object>? GetInvocationResult(this FunctionContext context)
-        {
-            return context.GetInvocationResult<object>();
         }
 
         /// <summary>
