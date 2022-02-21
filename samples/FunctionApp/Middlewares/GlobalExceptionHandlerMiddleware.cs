@@ -27,7 +27,7 @@ namespace FunctionApp
             {
                 _logger.LogError(ex, "Error processing invocation");
 
-                var httpReqData = await context.BindInputAsync<HttpRequestData>();
+                var httpReqData = await context.GetHttpRequestData(); //.BindInputAsync<HttpRequestData>();
 
                 if (httpReqData != null)
                 {
@@ -38,9 +38,8 @@ namespace FunctionApp
                     var httpResponseData = context.GetInvocationResult<HttpResponseData>();
                     httpResponseData.Value = newResponse;
 
-
                     // OR Read the output bindings and update as needed
-                    var queueOutputData = context.GetOutputBindings().FirstOrDefault(a => a.BindingType == "queue");
+                    var queueOutputData = context.GetOutputBindings<object>().FirstOrDefault(a => a.BindingType == "queue");
                     if (queueOutputData != null)
                     {
                         queueOutputData.Value = "Custom value from middleware";

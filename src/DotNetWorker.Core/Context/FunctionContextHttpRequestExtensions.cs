@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker.Http;
 
@@ -19,6 +20,24 @@ namespace Microsoft.Azure.Functions.Worker
         public static async Task<HttpRequestData?> GetHttpRequestData(this FunctionContext context)
         {
             return await context.BindInputAsync<HttpRequestData>();
+        }
+
+        public static HttpResponseData? GetHttpResponseData(this FunctionContext context)
+        {
+            var httpInvocationResult = context.GetInvocationResult<HttpResponseData>();
+            if (httpInvocationResult != null)
+            {
+                return httpInvocationResult.Value;
+            }
+
+            // Check there is an outputbinding data item of HttpResponseData type.
+            var httpOututbinding = context.GetOutputBindings<HttpResponseData>().FirstOrDefault();
+            if (httpOututbinding != null)
+            {
+                return httpOututbinding.Value;
+            }
+            
+            return default;
         }
     }
 }
