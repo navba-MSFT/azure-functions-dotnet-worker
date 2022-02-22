@@ -35,8 +35,8 @@ namespace FunctionApp
                     await newResponse.WriteAsJsonAsync(new { Status = "Failed", ErrorCode = "function-app-500" });
 
                     // Update invocation result.
-                    var httpResponseData = context.GetInvocationResult<HttpResponseData>();
-                    httpResponseData.Value = newResponse;
+                    var httpInvoationResult = context.GetInvocationResult<HttpResponseData>();
+                    httpInvoationResult.Value = newResponse;
 
                     // OR Read the output bindings and update as needed
                     var queueOutputData = context.GetOutputBindings<object>().FirstOrDefault(a => a.BindingType == "queue");

@@ -25,7 +25,7 @@ namespace Microsoft.Azure.Functions.Worker
         public static HttpResponseData? GetHttpResponseData(this FunctionContext context)
         {
             var httpInvocationResult = context.GetInvocationResult<HttpResponseData>();
-            if (httpInvocationResult != null)
+            if (httpInvocationResult.Value != null)
             {
                 return httpInvocationResult.Value;
             }
