@@ -12,14 +12,14 @@ namespace FunctionApp
         public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
         {
             var logger = context.GetLogger<StampHttpHeadersMiddleware>();
-            var requestId = "azfunc-" + Guid.NewGuid();
+            var requestId = "azf-" + Guid.NewGuid();
 
-            using (logger.BeginScope("AzFunc-RequestId:{requestId}", requestId))
+            using (logger.BeginScope("azfunc-requestid:{requestId}", requestId))
             {
                 await next(context);
             }
 
-            var httpRequestData = await context.GetHttpRequestData();
+            var httpRequestData = await context.GetHttpRequestDataAsync();
             if (httpRequestData != null)
             {
                 var httpResponseData = context.GetHttpResponseData();

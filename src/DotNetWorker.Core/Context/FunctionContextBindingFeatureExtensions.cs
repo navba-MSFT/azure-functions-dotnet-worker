@@ -90,14 +90,14 @@ namespace Microsoft.Azure.Functions.Worker
         /// </summary>
         /// <param name="context">The function context instance.</param>
         /// <returns>The invocation result value.</returns>
-        public static InvocationResult<T>? GetInvocationResult<T>(this FunctionContext context)
+        public static InvocationResult<T> GetInvocationResult<T>(this FunctionContext context)
         {
             if (context.GetBindings().InvocationResult is T t)
             {
                 return new InvocationResult<T>(context, t);
             }
 
-            return default;
+            return new InvocationResult<T>(context, default);
         }
 
         /// <summary>

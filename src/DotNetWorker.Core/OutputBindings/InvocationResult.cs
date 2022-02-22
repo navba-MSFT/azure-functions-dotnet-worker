@@ -5,19 +5,19 @@ namespace Microsoft.Azure.Functions.Worker
 {
     public sealed class InvocationResult<T>
     {
-        internal InvocationResult(FunctionContext functionContext, T value)
+        internal InvocationResult(FunctionContext functionContext, T? value)
         {
             _functionContext = functionContext;
             _value = value;
         }
 
-        private T _value;
+        private T? _value;
         private readonly FunctionContext _functionContext;
         
         /// <summary>
         /// Gets or sets the invocation result value.
         /// </summary>
-        public T Value
+        public T? Value
         {
             get => _value;
             set

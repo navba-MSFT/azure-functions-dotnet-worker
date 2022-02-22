@@ -27,7 +27,7 @@ namespace FunctionApp
             {
                 _logger.LogError(ex, "Error processing invocation");
 
-                var httpReqData = await context.GetHttpRequestData(); //.BindInputAsync<HttpRequestData>();
+                var httpReqData = await context.GetHttpRequestDataAsync(); //.BindInputAsync<HttpRequestData>();
 
                 if (httpReqData != null)
                 {
