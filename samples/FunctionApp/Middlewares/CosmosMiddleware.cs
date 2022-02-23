@@ -15,10 +15,6 @@ namespace FunctionApp
             {
                 
             }
-
-            var inputs = context.GetInputData();
-            var triggerMetaData = context.GetTriggerMetadata();
-
             await next(context);
         }
     }
