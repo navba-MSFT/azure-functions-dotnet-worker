@@ -7,8 +7,9 @@ namespace Microsoft.Azure.Functions.Worker
 {
     internal class GrpcBindingMetadata : BindingMetadata
     {
-        public GrpcBindingMetadata(BindingInfo bindingInfo)
+        public GrpcBindingMetadata(string name, BindingInfo bindingInfo)
         {
+            Name = name;
             Type = bindingInfo.Type;
             Direction = bindingInfo.Direction == BindingInfo.Types.Direction.In ? BindingDirection.In : BindingDirection.Out;
         }
@@ -16,5 +17,7 @@ namespace Microsoft.Azure.Functions.Worker
         public override string Type { get; }
 
         public override BindingDirection Direction { get; }
-    }
+
+        public override string Name { get; }
+}
 }

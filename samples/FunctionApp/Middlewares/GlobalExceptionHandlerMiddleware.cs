@@ -21,13 +21,26 @@ namespace FunctionApp
         {
             try
             {
+                //BindingMetadata sampleBlobBindingMetaData = context.FunctionDefinition
+                //    .InputBindings.Values.FirstOrDefault(a => a.Name == "sampleBlob");
+
+                BindingMetadata sampleBlobBindingMetaData = context.FunctionDefinition
+                                                                   .InputBindings.Values.Where(a => a.Type == "blob")
+                                                                   .Skip(1)
+                                                                   .FirstOrDefault();
+
+                if (sampleBlobBindingMetaData != null)
+                {
+                    var sampleBlob = await context.BindInputAsync<MyBlob>(sampleBlobBindingMetaData);
+                }
+
                 await next(context);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing invocation");
 
-                var httpReqData = await context.GetHttpRequestDataAsync(); //.BindInputAsync<HttpRequestData>();
+                var httpReqData = await context.GetHttpRequestDataAsync();
 
                 if (httpReqData != null)
                 {
@@ -35,8 +48,8 @@ namespace FunctionApp
                     await newResponse.WriteAsJsonAsync(new { Status = "Failed", ErrorCode = "function-app-500" });
 
                     // Update invocation result.
-                    var httpInvoationResult = context.GetInvocationResult<HttpResponseData>();
-                    httpInvoationResult.Value = newResponse;
+                    var httpInvoationResult = context.GetInvocationResult();
+                    httpInvoationResult.Value = newResponse;                   
 
                     // OR Read the output bindings and update as needed
                     var queueOutputData = context.GetOutputBindings<object>().FirstOrDefault(a => a.BindingType == "queue");
@@ -44,7 +57,7 @@ namespace FunctionApp
                     {
                         queueOutputData.Value = "Custom value from middleware";
                     }
-                }    
+                }
                 else
                 {
                     context.GetInvocationResult<object>().Value = new { ProcessingStatus = "Unhealthy" };

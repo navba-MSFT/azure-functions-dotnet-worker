@@ -22,10 +22,13 @@ namespace FunctionApp
             var httpRequestData = await context.GetHttpRequestDataAsync();
             if (httpRequestData != null)
             {
-                var httpResponseData = context.GetHttpResponseData();
+                var httpResponseData = context.GetInvocationResult();  //.GetHttpResponseData();
                 if (httpResponseData != null)
                 {
-                    httpResponseData.Headers.Add("x-azfunc-requestid", requestId);
+                    if (httpResponseData.Value is HttpResponseData httpResponse)
+                    {
+                        httpResponse.Headers.Add("x-azfunc-requestid", requestId);
+                    }
                 }
             }
         }

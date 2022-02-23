@@ -8,6 +8,8 @@ namespace Microsoft.Azure.Functions.Worker
     /// </summary>
     public abstract class BindingMetadata
     {
+        public abstract string Name { get; }
+
         /// <summary>
         /// The type of the binding. For example, "httpTrigger".
         /// </summary>

@@ -3,7 +3,13 @@
 
 namespace Microsoft.Azure.Functions.Worker
 {
-    public sealed class InvocationResult<T>
+    public class InvocationResult : InvocationResult<object>
+    {
+        internal InvocationResult(FunctionContext functionContext, object? value) : base(functionContext, value)
+        {
+        }
+    }
+    public class InvocationResult<T> 
     {
         internal InvocationResult(FunctionContext functionContext, T? value)
         {

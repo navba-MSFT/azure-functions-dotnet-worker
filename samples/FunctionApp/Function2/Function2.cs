@@ -6,14 +6,21 @@ using Microsoft.Azure.Functions.Worker;
 
 namespace FunctionApp
 {
+    public class MyBlob
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+    }
+
     public static class Function2
     {
         [Function("Function2")]
         public static Book Run(
             [QueueTrigger("functionstesting2", Connection = "MyStorageConnStr")] Book myQueueItem,
-            [BlobInput("test-samples/sample1.txt", Connection = "MyStorageConnStr")] string myBlob)
+            [BlobInput("test-samples/base.json", Connection = "MyStorageConnStr")] MyBlob baseBlob,
+            [BlobInput("test-samples/specific.json", Connection = "MyStorageConnStr")] MyBlob sampleBlob)
         {
-            Console.WriteLine(myBlob);
+            Console.WriteLine(sampleBlob);
             return myQueueItem;
         }
     }

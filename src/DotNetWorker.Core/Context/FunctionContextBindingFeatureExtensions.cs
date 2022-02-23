@@ -64,7 +64,43 @@ namespace Microsoft.Azure.Functions.Worker
                 }
             }
 
-            return await BindInputAsync<T>(context,parameter);
+            if (parameter != null)
+            {
+                var convertedValue = await GetConvertedValueFromInputConversionFeature(context, parameter);
+
+                return (T)convertedValue;
+            }
+
+            return default;
+        }
+
+        public static async Task<T?> BindInputAsync<T>(this FunctionContext context, BindingMetadata bindingMetadata)
+        {
+            if (bindingMetadata == null)
+            {
+                throw new ArgumentNullException(nameof(bindingMetadata));
+            }
+
+            // find the parameter from function definition for the bindingMetadata requested.
+            // Use that parameter definition(which has Type) to get converted value.
+
+            FunctionParameter? parameter = null;
+            foreach (var param in context.FunctionDefinition.Parameters)
+            {
+                if (param.Name == bindingMetadata.Name)
+                {
+                    parameter = param;
+                    break;
+                }
+            }
+            if (parameter != null)
+            {
+                var convertedValue = await GetConvertedValueFromInputConversionFeature(context, parameter);
+
+                return (T)convertedValue;
+            }
+
+            return default;
         }
 
         /// <summary>
@@ -90,6 +126,7 @@ namespace Microsoft.Azure.Functions.Worker
         /// </summary>
         /// <param name="context">The function context instance.</param>
         /// <returns>The invocation result value.</returns>
+        /// <exception cref="InvalidOperationException"></exception>
         public static InvocationResult<T> GetInvocationResult<T>(this FunctionContext context)
         {
             if (context.GetBindings().InvocationResult is T t)
@@ -97,7 +134,13 @@ namespace Microsoft.Azure.Functions.Worker
                 return new InvocationResult<T>(context, t);
             }
 
-            return new InvocationResult<T>(context, default);
+            throw new InvalidOperationException("Invocation result is not of the requested type. Consider using the overload which does not specify the type.");
+        }
+        public static InvocationResult GetInvocationResult(this FunctionContext context)
+        {
+            var invocationResult = context.GetBindings().InvocationResult;
+
+            return new InvocationResult(context, invocationResult);
         }
 
         /// <summary>

@@ -20,17 +20,9 @@ namespace FunctionApp
                 }
             }
 
-            var inputs = context.GetInputData();
-            var triggerMetaData = context.GetTriggerMetadata();
 
             await next(context);
 
-            var qoutputMsg = context.GetInvocationResult<MyOutgoingQueueMsg>();
-               // .GetOutputBindings().FirstOrDefault(a=>a.BindingType=="queue");
-            if (qoutputMsg!= null)
-            {
-                qoutputMsg.Value.Name= "Modified Q msg from middleware"+DateTime.Now.ToString();
-            }
         }
     }
 }
