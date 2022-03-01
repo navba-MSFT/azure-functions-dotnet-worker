@@ -21,7 +21,9 @@ namespace FunctionApp
             databaseName: "items-db",
             collectionName: "products-container",
             ConnectionStringSetting = "MyCosmosDbConnStr",
-            LeaseCollectionName = "leases")] IReadOnlyList<MyDocument> myDocuments)
+            LeaseCollectionName = "leases")] IReadOnlyList<MyDocument> myDocuments,
+            [BlobInput("test-samples/base.json", Connection = "MyStorageConnStr")] MyOtherBlob baseBlob,
+            [BlobInput("test-samples/specific.json", Connection = "MyStorageConnStr")] MyOtherBlob sampleBlob)
         {
             if (myDocuments != null && myDocuments.Count > 0)
             {

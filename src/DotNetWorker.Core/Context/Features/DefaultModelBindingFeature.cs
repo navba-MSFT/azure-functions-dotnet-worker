@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker.Converters;
 using Microsoft.Azure.Functions.Worker.Diagnostics.Exceptions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Azure.Functions.Worker.Context.Features
 {
@@ -15,7 +16,6 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
         private bool _inputBound;
         private object?[]? _parameterValues;
         private readonly IConverterContextFactory _converterContextFactory;
-
         public DefaultModelBindingFeature(IConverterContextFactory converterContextFactory)
         {
             _converterContextFactory = converterContextFactory ??
@@ -42,6 +42,8 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
                 throw new InvalidOperationException("Input conversion feature is missing.");
             }
 
+            var bindingCache = context.InstanceServices.GetService<IBindingCache<ConversionResult>>();
+
             List<string>? errors = null;
             for (int i = 0; i < _parameterValues.Length; i++)
             {
@@ -67,8 +69,20 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
                 }
 
                 var converterContext = _converterContextFactory.Create(param.Type, source, context, properties);
-                
-                var bindingResult = await inputConversionFeature.ConvertAsync(converterContext);
+
+                // Check present in cache.
+                var key = param.Name;
+                ConversionResult bindingResult;
+
+                if (bindingCache!.TryGetValue(key, out var cachedResult))
+                {
+                    bindingResult = cachedResult;
+                }
+                else
+                {
+                    bindingResult = await inputConversionFeature.ConvertAsync(converterContext);
+                    bindingCache.TryAdd(key, bindingResult);
+                }
 
                 if (bindingResult.Status == ConversionStatus.Succeeded)
                 {

@@ -21,9 +21,6 @@ namespace FunctionApp
         {
             try
             {
-                //BindingMetadata sampleBlobBindingMetaData = context.FunctionDefinition
-                //    .InputBindings.Values.FirstOrDefault(a => a.Name == "sampleBlob");
-
                 BindingMetadata sampleBlobBindingMetaData = context.FunctionDefinition
                                                                    .InputBindings.Values.Where(a => a.Type == "blob")
                                                                    .Skip(1)
@@ -32,6 +29,7 @@ namespace FunctionApp
                 if (sampleBlobBindingMetaData != null)
                 {
                     var sampleBlob = await context.BindInputAsync<MyBlob>(sampleBlobBindingMetaData);
+                    sampleBlob.Name="edited name";
                 }
 
                 await next(context);
@@ -60,7 +58,7 @@ namespace FunctionApp
                 }
                 else
                 {
-                    context.GetInvocationResult<object>().Value = new { ProcessingStatus = "Unhealthy" };
+                    context.GetInvocationResult().Value = new { ProcessingStatus = "Unhealthy" };
                 }
             }
         }

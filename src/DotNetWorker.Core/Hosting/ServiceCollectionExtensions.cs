@@ -57,6 +57,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IInputConversionFeatureProvider, DefaultInputConversionFeatureProvider>();
             services.AddSingleton<IInputConverterProvider, DefaultInputConverterProvider>();
 
+            services.AddScoped<IBindingCache<ConversionResult>, BindingCache<ConversionResult>>();
+
             // Output Bindings
             services.AddSingleton<IOutputBindingsInfoProvider, DefaultOutputBindingsInfoProvider>();
 

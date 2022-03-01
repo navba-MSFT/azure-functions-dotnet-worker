@@ -12,13 +12,18 @@ namespace FunctionApp
         public string Name { get; set; }
     }
 
+    public class MyOtherBlob
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+    }
     public static class Function2
     {
         [Function("Function2")]
         public static Book Run(
             [QueueTrigger("functionstesting2", Connection = "MyStorageConnStr")] Book myQueueItem,
             [BlobInput("test-samples/base.json", Connection = "MyStorageConnStr")] MyBlob baseBlob,
-            [BlobInput("test-samples/specific.json", Connection = "MyStorageConnStr")] MyBlob sampleBlob)
+            [BlobInput("test-samples/specific.json", Connection = "MyStorageConnStr")] MyOtherBlob sampleBlob)
         {
             Console.WriteLine(sampleBlob);
             return myQueueItem;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Extensions.Logging;
 
@@ -22,13 +21,10 @@ namespace FunctionApp
             var httpRequestData = await context.GetHttpRequestDataAsync();
             if (httpRequestData != null)
             {
-                var httpResponseData = context.GetInvocationResult();  //.GetHttpResponseData();
+                var httpResponseData = context.GetHttpResponseData();
                 if (httpResponseData != null)
                 {
-                    if (httpResponseData.Value is HttpResponseData httpResponse)
-                    {
-                        httpResponse.Headers.Add("x-azfunc-requestid", requestId);
-                    }
+                    httpResponseData.Headers.Add("x-azfunc-requestid", requestId);
                 }
             }
         }

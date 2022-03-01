@@ -10,7 +10,6 @@ namespace Microsoft.Azure.Functions.Worker.Context.Features
     {
         private readonly IConverterContextFactory _converterContextFactory;
         private static readonly Type _featureType = typeof(IModelBindingFeature);
-
         public DefaultBindingFeatureProvider(IConverterContextFactory converterContextFactory)
         {
             _converterContextFactory = converterContextFactory ?? throw new ArgumentNullException(nameof(converterContextFactory));

@@ -10,15 +10,15 @@ namespace FunctionApp
     {
         public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
         {
-            var bookInputBinding = await context.BindInputAsync<Book>();
+            //var bookInputBinding = await context.BindInputAsync<Book>();
 
-            if (bookInputBinding != null)
-            {
-                if (bookInputBinding.name.Contains("Secret"))
-                {
-                    return;
-                }
-            }
+            //if (bookInputBinding != null)
+            //{
+            //    if (bookInputBinding.name.Contains("Secret"))
+            //    {
+            //        return;
+            //    }
+            //}
 
 
             await next(context);

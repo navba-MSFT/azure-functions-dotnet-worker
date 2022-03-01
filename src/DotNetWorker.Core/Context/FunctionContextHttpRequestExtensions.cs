@@ -19,7 +19,15 @@ namespace Microsoft.Azure.Functions.Worker
         /// <returns>HttpRequestData instance if the invocation is http, else null</returns>
         public static async Task<HttpRequestData?> GetHttpRequestDataAsync(this FunctionContext context)
         {
-            return await context.BindInputAsync<HttpRequestData>();
+            var httpTriggerBinding = context.FunctionDefinition.InputBindings.Values
+               .FirstOrDefault(a => a.Type == "httpTrigger");
+
+            if (httpTriggerBinding != null)
+            {
+                return await context.BindInputAsync<HttpRequestData>(httpTriggerBinding);
+            }
+
+            return default; 
         }
 
         public static HttpResponseData? GetHttpResponseData(this FunctionContext context)
