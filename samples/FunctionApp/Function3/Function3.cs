@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System;
 using System.Net;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -18,7 +19,7 @@ namespace FunctionApp
 
             return new MyOutputType()
             {
-                Name = "some name",
+                Name = "some-"+DateTime.Now,
                 HttpResponse = response
             };
         }

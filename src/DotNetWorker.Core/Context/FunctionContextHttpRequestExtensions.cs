@@ -32,10 +32,10 @@ namespace Microsoft.Azure.Functions.Worker
 
         public static HttpResponseData? GetHttpResponseData(this FunctionContext context)
         {
-            var httpInvocationResult = context.GetInvocationResult<HttpResponseData>();
-            if (httpInvocationResult.Value != null)
+            var httpInvocationResult = context.GetInvocationResult();
+            if (httpInvocationResult.Value is HttpResponseData responseData)
             {
-                return httpInvocationResult.Value;
+                return responseData;
             }
 
             // Check there is an outputbinding data item of HttpResponseData type.
