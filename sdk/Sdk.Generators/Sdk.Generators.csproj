@@ -3,6 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <LangVersion>latest</LangVersion>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
         <PackageId>Microsoft.Azure.Functions.Worker.Sdk.Generators</PackageId>
         <Description>This package provides source generation for azure function worker.</Description>
         <AssemblyName>Microsoft.Azure.Functions.Worker.Sdk.Generators</AssemblyName>
