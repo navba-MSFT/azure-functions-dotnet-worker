@@ -32,7 +32,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
     <_FunctionsExtensionsFullPublish Condition="$(_FunctionsExtensionsFullPublish) == ''">!$(NoBuild)</_FunctionsExtensionsFullPublish>
     <MSBuildFunctionsTargetsPath>$(MSBuildExtensionsPath)\Microsoft\VisualStudio\Managed.Functions\</MSBuildFunctionsTargetsPath>
 
-    <EnableWorkerIndexing Condition="$(EnableWorkerIndexing) == ''">false</EnableWorkerIndexing>
+    <FunctionsEnableWorkerIndexing Condition="$(FunctionsEnableWorkerIndexing) == ''">false</FunctionsEnableWorkerIndexing>
   </PropertyGroup>
 
   <UsingTask TaskName="GenerateFunctionMetadata"
@@ -82,7 +82,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
         Lines="$([System.IO.File]::ReadAllText($(_FunctionsWorkerConfigInputFile))
                                   .Replace('$functionExe$', '{WorkerRoot}$(TargetName)')
                                   .Replace('$functionWorker$', '$(TargetName).dll')
-                                  .Replace('$enableWorkerIndexing$', '$(EnableWorkerIndexing)'))"
+                                  .Replace('$enableWorkerIndexing$', '$(FunctionsEnableWorkerIndexing)'))"
         Overwrite="true" />
 
     <WriteLinesToFile
@@ -91,7 +91,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
         Lines="$([System.IO.File]::ReadAllText($(_FunctionsWorkerConfigInputFile))
                                   .Replace('$functionExe$', 'dotnet')
                                   .Replace('$functionWorker$', '$(TargetName).dll')
-                                  .Replace('$enableWorkerIndexing$', '$(EnableWorkerIndexing)'))"
+                                  .Replace('$enableWorkerIndexing$', '$(FunctionsEnableWorkerIndexing)'))"
         Overwrite="true" />
 
   </Target>
@@ -262,7 +262,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
         Lines="$([System.IO.File]::ReadAllText($(_FunctionsWorkerConfigInputFile))
                                   .Replace('$functionExe$', '{WorkerRoot}$(TargetName)')
                                   .Replace('$functionWorker$', '$(TargetName).dll')
-                                  .Replace('$enableWorkerIndexing$', '$(EnableWorkerIndexing)'))"
+                                  .Replace('$enableWorkerIndexing$', '$(FunctionsEnableWorkerIndexing)'))"
         Overwrite="true" />
 
     <WriteLinesToFile
@@ -271,7 +271,7 @@ WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and
         Lines="$([System.IO.File]::ReadAllText($(_FunctionsWorkerConfigInputFile))
                                   .Replace('$functionExe$', 'dotnet')
                                   .Replace('$functionWorker$', '$(TargetName).dll')
-                                  .Replace('$enableWorkerIndexing$', '$(EnableWorkerIndexing)'))"
+                                  .Replace('$enableWorkerIndexing$', '$(FunctionsEnableWorkerIndexing)'))"
         Overwrite="true" />
 
   </Target>
