@@ -38,7 +38,11 @@ namespace Microsoft.Azure.Functions.Worker.Definition
                 .Where(p => p.Name != null)
                 .Select(p => new FunctionParameter(p.Name!, p.ParameterType, GetAdditionalPropertiesDictionary(p)))
                 .ToImmutableArray();
+
+            TriggerType = GetTriggerType(InputBindings);
         }
+
+        public string TriggerType { set; get; }
 
         public override string PathToAssembly { get; }
 
@@ -53,6 +57,16 @@ namespace Microsoft.Azure.Functions.Worker.Definition
         public override IImmutableDictionary<string, BindingMetadata> OutputBindings { get; }
 
         public override ImmutableArray<FunctionParameter> Parameters { get; }
+
+        private string GetTriggerType(IImmutableDictionary<string, BindingMetadata> inputBindings)
+        {
+            foreach(var binding in inputBindings)
+            {
+                var tt = binding.Value.Type;
+            }
+
+            return "";
+        }
 
         private ImmutableDictionary<string, object> GetAdditionalPropertiesDictionary(ParameterInfo parameterInfo)
         {

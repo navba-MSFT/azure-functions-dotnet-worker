@@ -11,13 +11,18 @@ namespace FunctionApp
     {
         static async Task Main(string[] args)
         {
-// #if DEBUG
-//          Debugger.Launch();
-// #endif
+            // #if DEBUG
+            //          Debugger.Launch();
+            // #endif
             //<docsnippet_startup>
             var host = new HostBuilder()
                 //<docsnippet_configure_defaults>
-                .ConfigureFunctionsWorkerDefaults()
+                //.ConfigureFunctionsWorkerDefaults()
+                                .ConfigureFunctionsWorkerDefaults(workerApplication =>
+                                {
+                                    // Register our custom middleware with the worker
+                                    workerApplication.UseMiddleware<MyHttpMiddleware>();
+                                })
                 //</docsnippet_configure_defaults>
                 //<docsnippet_dependency_injection>
                 .ConfigureServices(s =>

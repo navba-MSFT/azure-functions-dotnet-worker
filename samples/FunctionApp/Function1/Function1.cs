@@ -13,7 +13,7 @@ namespace FunctionApp
         [Function("Function1")]
         public static MyOutputType Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequestData req,
-            [BlobInput("test-samples/sample1.txt", Connection = "AzureWebJobsStorage")] string myBlob, FunctionContext context)
+            [BlobInput("test-samples/sample1.txt", Connection = "MyStorageConnStr")] string myBlob, FunctionContext context)
         {
             var bookVal = (Book)JsonSerializer.Deserialize(myBlob, typeof(Book));
 
@@ -28,11 +28,11 @@ namespace FunctionApp
                 Book = bookVal,
                 HttpResponse = response
             };
-        }        
+        }
 
         public class MyOutputType
         {
-            [QueueOutput("functionstesting2", Connection = "AzureWebJobsStorage")]
+            [QueueOutput("functionstesting2", Connection = "MyStorageConnStr")]
             public Book Book { get; set; }
 
             public HttpResponseData HttpResponse { get; set; }
