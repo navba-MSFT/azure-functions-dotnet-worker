@@ -69,12 +69,12 @@ namespace Microsoft.Azure.Functions.Worker.Definition
         {
             var triggerTypeBinding = inputBindings.Values.FirstOrDefault(b => b.Type.EndsWith("Trigger"));
 
-            if (triggerTypeBinding == null)
-            {
-                throw new InvalidOperationException("Missing trigger type binding");
-            }
+            //if (triggerTypeBinding == null)
+            //{
+            //    throw new InvalidOperationException("Missing trigger type binding");
+            //}
 
-            return triggerTypeBinding.Type;
+            return triggerTypeBinding?.Type;
         }
         private TriggerType? GetTriggerType(string triggerTypeName)
         {
