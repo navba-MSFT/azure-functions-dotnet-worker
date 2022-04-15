@@ -39,10 +39,13 @@ namespace Microsoft.Azure.Functions.Worker.Definition
                 .Select(p => new FunctionParameter(p.Name!, p.ParameterType, GetAdditionalPropertiesDictionary(p)))
                 .ToImmutableArray();
 
-            TriggerType = GetTriggerType(InputBindings);
+            // OPTION 1
+            TriggerType = GetTriggerType(GetTriggerTypeName(InputBindings));
+
+            // Or OPTION 2
+            TriggerTypeName = GetTriggerTypeName(InputBindings);
         }
 
-        public string TriggerType { set; get; }
 
         public override string PathToAssembly { get; }
 
@@ -58,14 +61,30 @@ namespace Microsoft.Azure.Functions.Worker.Definition
 
         public override ImmutableArray<FunctionParameter> Parameters { get; }
 
-        private string GetTriggerType(IImmutableDictionary<string, BindingMetadata> inputBindings)
+        public override TriggerType? TriggerType { get; }
+
+        public override string? TriggerTypeName { get; }
+
+        private string GetTriggerTypeName(IImmutableDictionary<string, BindingMetadata> inputBindings)
         {
-            foreach(var binding in inputBindings)
+            var triggerTypeBinding = inputBindings.Values.FirstOrDefault(b => b.Type.EndsWith("Trigger"));
+
+            if (triggerTypeBinding == null)
             {
-                var tt = binding.Value.Type;
+                throw new InvalidOperationException("Missing trigger type binding");
             }
 
-            return "";
+            return triggerTypeBinding.Type;
+        }
+        private TriggerType? GetTriggerType(string triggerTypeName)
+        {
+            return triggerTypeName switch
+            {
+                "httpTrigger" => Worker.TriggerType.HttpTrigger,
+                "queueTrigger" => Worker.TriggerType.QueueTrigger,
+                // Could consider a source gen to generate this switch code block.
+                _ => null,
+            };
         }
 
         private ImmutableDictionary<string, object> GetAdditionalPropertiesDictionary(ParameterInfo parameterInfo)

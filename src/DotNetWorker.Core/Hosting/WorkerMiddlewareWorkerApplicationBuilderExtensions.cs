@@ -94,6 +94,19 @@ namespace Microsoft.Extensions.Hosting
         /// <param name="builder">The <see cref="IFunctionsWorkerApplicationBuilder"/> to configure.</param>
         /// <returns>The same instance of the <see cref="IFunctionsWorkerApplicationBuilder"/> for chanining.</returns>
         public static IFunctionsWorkerApplicationBuilder UseMiddleware<T>(this IFunctionsWorkerApplicationBuilder builder)
+    where T : class, IFunctionsWorkerMiddleware
+        {
+            return builder.UseMiddleware<T>(Array.Empty<string>());
+            // OR 
+            //return builder.UseMiddleware<T>(TriggerType.All);
+        }
+
+        /// <summary>
+        /// Configures the <see cref="IFunctionsWorkerApplicationBuilder"/> to use the provided middleware type for specified trigger types.
+        /// </summary>
+        /// <param name="builder">The <see cref="IFunctionsWorkerApplicationBuilder"/> to configure.</param>
+        /// <returns>The same instance of the <see cref="IFunctionsWorkerApplicationBuilder"/> for chanining.</returns>
+        public static IFunctionsWorkerApplicationBuilder UseMiddleware<T>(this IFunctionsWorkerApplicationBuilder builder, TriggerType triggerType)
             where T : class, IFunctionsWorkerMiddleware
         {
             builder.Services.AddSingleton<T>();
@@ -104,7 +117,42 @@ namespace Microsoft.Extensions.Hosting
                 {
                     var middleware = context.InstanceServices.GetRequiredService<T>();
 
-                    return middleware.Invoke(context, next);
+                    if (triggerType == TriggerType.All || triggerType.HasFlag(context.FunctionDefinition.TriggerType!))
+                    {
+                        return middleware.Invoke(context, next);
+                    }
+
+                    return next.Invoke(context);
+                };
+            });
+
+            return builder;
+        }
+
+        /// <summary>
+        ///  Configures the <see cref="IFunctionsWorkerApplicationBuilder"/> to use the provided middleware type for the specified trigger types.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="builder"></param>
+        /// <param name="triggerTypeNames"></param>
+        /// <returns></returns>
+        public static IFunctionsWorkerApplicationBuilder UseMiddleware<T>(this IFunctionsWorkerApplicationBuilder builder, string[]? triggerTypeNames)
+            where T : class, IFunctionsWorkerMiddleware
+        {
+            builder.Services.AddSingleton<T>();
+
+            builder.Use(next =>
+            {
+                return context =>
+                {
+                    if (triggerTypeNames==null || triggerTypeNames.Contains(context.FunctionDefinition.TriggerTypeName))
+                    {
+                        var middleware = context.InstanceServices.GetRequiredService<T>();
+
+                        return middleware.Invoke(context, next);
+                    }
+
+                    return next.Invoke(context);
                 };
             });
 
