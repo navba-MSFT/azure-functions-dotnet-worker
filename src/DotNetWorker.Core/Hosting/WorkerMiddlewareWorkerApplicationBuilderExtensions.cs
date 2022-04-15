@@ -105,6 +105,7 @@ namespace Microsoft.Extensions.Hosting
         /// Configures the <see cref="IFunctionsWorkerApplicationBuilder"/> to use the provided middleware type for specified trigger types.
         /// </summary>
         /// <param name="builder">The <see cref="IFunctionsWorkerApplicationBuilder"/> to configure.</param>
+        /// <param name="triggerType">Trigger type.</param>
         /// <returns>The same instance of the <see cref="IFunctionsWorkerApplicationBuilder"/> for chanining.</returns>
         public static IFunctionsWorkerApplicationBuilder UseMiddleware<T>(this IFunctionsWorkerApplicationBuilder builder, TriggerType triggerType)
             where T : class, IFunctionsWorkerMiddleware
