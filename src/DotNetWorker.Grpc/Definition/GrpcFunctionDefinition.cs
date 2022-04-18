@@ -39,11 +39,7 @@ namespace Microsoft.Azure.Functions.Worker.Definition
                 .Select(p => new FunctionParameter(p.Name!, p.ParameterType, GetAdditionalPropertiesDictionary(p)))
                 .ToImmutableArray();
 
-            // OPTION 1
-            TriggerType = GetTriggerType(GetTriggerTypeName(InputBindings));
-
-            // Or OPTION 2
-            TriggerTypeName = GetTriggerTypeName(InputBindings);
+            TriggerType = GetTriggerTypeName(InputBindings);
         }
 
 
@@ -61,30 +57,13 @@ namespace Microsoft.Azure.Functions.Worker.Definition
 
         public override ImmutableArray<FunctionParameter> Parameters { get; }
 
-        public override TriggerType? TriggerType { get; }
+        public override string? TriggerType { get; }
 
-        public override string? TriggerTypeName { get; }
-
-        private string GetTriggerTypeName(IImmutableDictionary<string, BindingMetadata> inputBindings)
+        private string? GetTriggerTypeName(IImmutableDictionary<string, BindingMetadata> inputBindings)
         {
-            var triggerTypeBinding = inputBindings.Values.FirstOrDefault(b => b.Type.EndsWith("Trigger"));
-
-            //if (triggerTypeBinding == null)
-            //{
-            //    throw new InvalidOperationException("Missing trigger type binding");
-            //}
+            var triggerTypeBinding = inputBindings.Values.FirstOrDefault(b => b.Type.EndsWith("Trigger", StringComparison.InvariantCultureIgnoreCase));
 
             return triggerTypeBinding?.Type;
-        }
-        private TriggerType? GetTriggerType(string triggerTypeName)
-        {
-            return triggerTypeName switch
-            {
-                "httpTrigger" => Worker.TriggerType.HttpTrigger,
-                "queueTrigger" => Worker.TriggerType.QueueTrigger,
-                // Could consider a source gen to generate this switch code block.
-                _ => null,
-            };
         }
 
         private ImmutableDictionary<string, object> GetAdditionalPropertiesDictionary(ParameterInfo parameterInfo)

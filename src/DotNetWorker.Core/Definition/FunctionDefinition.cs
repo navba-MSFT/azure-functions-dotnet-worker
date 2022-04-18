@@ -46,15 +46,9 @@ namespace Microsoft.Azure.Functions.Worker
         public abstract IImmutableDictionary<string, BindingMetadata> OutputBindings { get; }
 
         /// <summary>
-        /// Gets the trigger type.
-        /// </summary>
-        public abstract TriggerType? TriggerType {  get; }
-
-        // OR a CONSTANT String
-        /// <summary>
         /// Gets the trigger type name.
         /// Ex: "httpTrigger" or "queueTrigger"
         /// </summary>
-        public abstract string? TriggerTypeName { get; }
+        public abstract string? TriggerType { get; }
     }
 }

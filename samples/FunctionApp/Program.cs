@@ -21,10 +21,8 @@ namespace FunctionApp
                                 //.ConfigureFunctionsWorkerDefaults()
                                 .ConfigureFunctionsWorkerDefaults(workerApplication =>
                                 {
-                                    // Register our custom middleware with the worker
                                     //TriggerType.HttpTrigger | TriggerType.QueueTrigger
-                                    workerApplication.UseMiddleware<MyHttpMiddleware>(TriggerType.HttpTrigger);
-                                    //workerApplication.UseMiddleware<MyHttpMiddleware>(new[] { TriggerTypeNames.Http });
+                                    workerApplication.UseMiddleware<MyHttpMiddleware>(new[] { TriggerTypeNames.Http });
                                 })
                 //</docsnippet_configure_defaults>
                 //<docsnippet_dependency_injection>

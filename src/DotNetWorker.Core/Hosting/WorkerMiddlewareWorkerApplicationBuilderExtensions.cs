@@ -96,48 +96,16 @@ namespace Microsoft.Extensions.Hosting
         public static IFunctionsWorkerApplicationBuilder UseMiddleware<T>(this IFunctionsWorkerApplicationBuilder builder)
     where T : class, IFunctionsWorkerMiddleware
         {
-            return builder.UseMiddleware<T>(Array.Empty<string>());
-            // OR 
-            //return builder.UseMiddleware<T>(TriggerType.All);
-        }
-
-        /// <summary>
-        /// Configures the <see cref="IFunctionsWorkerApplicationBuilder"/> to use the provided middleware type for specified trigger types.
-        /// </summary>
-        /// <param name="builder">The <see cref="IFunctionsWorkerApplicationBuilder"/> to configure.</param>
-        /// <param name="triggerType">Trigger type.</param>
-        /// <returns>The same instance of the <see cref="IFunctionsWorkerApplicationBuilder"/> for chanining.</returns>
-        public static IFunctionsWorkerApplicationBuilder UseMiddleware<T>(this IFunctionsWorkerApplicationBuilder builder, TriggerType triggerType)
-            where T : class, IFunctionsWorkerMiddleware
-        {
-            builder.Services.AddSingleton<T>();
-
-            builder.Use(next =>
-            {
-                return context =>
-                {
-                    var middleware = context.InstanceServices.GetRequiredService<T>();
-
-                    if (triggerType == TriggerType.All || triggerType.HasFlag(context.FunctionDefinition.TriggerType!))
-                    {
-                        return middleware.Invoke(context, next);
-                    }
-
-                    return next.Invoke(context);
-                };
-            });
-
-            return builder;
+            return builder.UseMiddleware<T>(null);
         }
 
         /// <summary>
         ///  Configures the <see cref="IFunctionsWorkerApplicationBuilder"/> to use the provided middleware type for the specified trigger types.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="builder"></param>
-        /// <param name="triggerTypeNames"></param>
+        /// <param name="builder">The <see cref="IFunctionsWorkerApplicationBuilder"/> to configure.</param>
+        /// <param name="triggerTypes">An array of trigger types for which this middleware should be enabled.</param>
         /// <returns></returns>
-        public static IFunctionsWorkerApplicationBuilder UseMiddleware<T>(this IFunctionsWorkerApplicationBuilder builder, string[]? triggerTypeNames)
+        public static IFunctionsWorkerApplicationBuilder UseMiddleware<T>(this IFunctionsWorkerApplicationBuilder builder, string[]? triggerTypes)
             where T : class, IFunctionsWorkerMiddleware
         {
             builder.Services.AddSingleton<T>();
@@ -146,7 +114,7 @@ namespace Microsoft.Extensions.Hosting
             {
                 return context =>
                 {
-                    if (triggerTypeNames==null || triggerTypeNames.Contains(context.FunctionDefinition.TriggerTypeName))
+                    if (triggerTypes == null || triggerTypes.Contains(context.FunctionDefinition.TriggerType))
                     {
                         var middleware = context.InstanceServices.GetRequiredService<T>();
 
@@ -168,12 +136,29 @@ namespace Microsoft.Extensions.Hosting
         /// <returns>The same <see cref="IFunctionsWorkerApplicationBuilder"/> for chaining.</returns>
         public static IFunctionsWorkerApplicationBuilder UseMiddleware(this IFunctionsWorkerApplicationBuilder builder, Func<FunctionContext, Func<Task>, Task> middleware)
         {
+            return builder.UseMiddleware(middleware, null);
+        }
+
+        /// <summary>
+        /// Configures the <see cref="IFunctionsWorkerApplicationBuilder"/> to use the provided inline middleware delegate.
+        /// </summary>
+        /// <param name="builder">The <see cref="IFunctionsWorkerApplicationBuilder"/> to configure.</param>
+        /// <param name="middleware">The middleware to add to the invocation pipeline.</param>
+        /// <param name="triggerTypes">An array of trigger types for which this middleware should be enabled.</param>
+        /// <returns>The same <see cref="IFunctionsWorkerApplicationBuilder"/> for chaining.</returns>
+        public static IFunctionsWorkerApplicationBuilder UseMiddleware(this IFunctionsWorkerApplicationBuilder builder, Func<FunctionContext, Func<Task>, Task> middleware, string[]? triggerTypes)
+        {
 
             builder.Use(next =>
             {
                 return context =>
                 {
-                    return middleware(context, () => next.Invoke(context));
+                    if (triggerTypes == null || triggerTypes.Contains(context.FunctionDefinition.TriggerType))
+                    {
+                        return middleware(context, () => next.Invoke(context));
+                    }
+
+                    return next.Invoke(context);
                 };
             });
 

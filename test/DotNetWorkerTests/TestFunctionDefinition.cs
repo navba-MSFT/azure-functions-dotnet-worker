@@ -40,9 +40,7 @@ namespace Microsoft.Azure.Functions.Worker.Tests
 
         public override IImmutableDictionary<string, BindingMetadata> OutputBindings { get; }
 
-        public override TriggerType? TriggerType => Worker.TriggerType.All;
-
-        public override string TriggerTypeName => string.Empty;
+        public override string TriggerType => string.Empty;
 
         /// <summary>
         /// Generates a pre-made <see cref="FunctionDefinition"/> for testing. Always includes a single trigger named "TestTrigger".
