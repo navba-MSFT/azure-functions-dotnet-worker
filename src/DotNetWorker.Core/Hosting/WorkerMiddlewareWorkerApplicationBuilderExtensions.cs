@@ -94,6 +94,18 @@ namespace Microsoft.Extensions.Hosting
         /// <param name="builder">The <see cref="IFunctionsWorkerApplicationBuilder"/> to configure.</param>
         /// <returns>The same instance of the <see cref="IFunctionsWorkerApplicationBuilder"/> for chanining.</returns>
         public static IFunctionsWorkerApplicationBuilder UseMiddleware<T>(this IFunctionsWorkerApplicationBuilder builder)
+    where T : class, IFunctionsWorkerMiddleware
+        {
+            return builder.UseMiddleware<T>(TriggerType.All);
+        }
+
+        /// <summary>
+        /// Configures the <see cref="IFunctionsWorkerApplicationBuilder"/> to use the provided middleware type for specified trigger types.
+        /// </summary>
+        /// <param name="builder">The <see cref="IFunctionsWorkerApplicationBuilder"/> to configure.</param>
+        /// <param name="triggerType">The trigger type for which this middleware should be enabled for.</param>
+        /// <returns>The same instance of the <see cref="IFunctionsWorkerApplicationBuilder"/> for chanining.</returns>
+        public static IFunctionsWorkerApplicationBuilder UseMiddleware<T>(this IFunctionsWorkerApplicationBuilder builder, TriggerType triggerType)
             where T : class, IFunctionsWorkerMiddleware
         {
             builder.Services.AddSingleton<T>();
@@ -104,7 +116,12 @@ namespace Microsoft.Extensions.Hosting
                 {
                     var middleware = context.InstanceServices.GetRequiredService<T>();
 
-                    return middleware.Invoke(context, next);
+                    if (triggerType == TriggerType.All || triggerType.HasFlag(context.FunctionDefinition.TriggerType!))
+                    {
+                        return middleware.Invoke(context, next);
+                    }
+
+                    return next.Invoke(context);
                 };
             });
 
@@ -118,13 +135,29 @@ namespace Microsoft.Extensions.Hosting
         /// <param name="middleware">The middleware to add to the invocation pipeline.</param>
         /// <returns>The same <see cref="IFunctionsWorkerApplicationBuilder"/> for chaining.</returns>
         public static IFunctionsWorkerApplicationBuilder UseMiddleware(this IFunctionsWorkerApplicationBuilder builder, Func<FunctionContext, Func<Task>, Task> middleware)
-        {
+        { 
+            return builder.UseMiddleware(middleware, TriggerType.All);
+        }
 
+        /// <summary>
+        /// Configures the <see cref="IFunctionsWorkerApplicationBuilder"/> to use the provided inline middleware delegate.
+        /// </summary>
+        /// <param name="builder">The <see cref="IFunctionsWorkerApplicationBuilder"/> to configure.</param>
+        /// <param name="middleware">The middleware to add to the invocation pipeline.</param>
+        /// <param name="triggerType">The trigger type for which this middleware should be enabled for.</param>
+        /// <returns>The same <see cref="IFunctionsWorkerApplicationBuilder"/> for chaining.</returns>
+        public static IFunctionsWorkerApplicationBuilder UseMiddleware(this IFunctionsWorkerApplicationBuilder builder, Func<FunctionContext, Func<Task>, Task> middleware, TriggerType triggerType)
+        {
             builder.Use(next =>
             {
                 return context =>
                 {
-                    return middleware(context, () => next.Invoke(context));
+                    if (triggerType == TriggerType.All || triggerType.HasFlag(context.FunctionDefinition.TriggerType!))
+                    { 
+                        return middleware(context, () => next.Invoke(context));
+                    }
+
+                    return next.Invoke(context);
                 };
             });
 

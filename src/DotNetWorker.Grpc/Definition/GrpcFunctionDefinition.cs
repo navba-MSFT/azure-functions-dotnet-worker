@@ -38,6 +38,8 @@ namespace Microsoft.Azure.Functions.Worker.Definition
                 .Where(p => p.Name != null)
                 .Select(p => new FunctionParameter(p.Name!, p.ParameterType, GetAdditionalPropertiesDictionary(p)))
                 .ToImmutableArray();
+
+            TriggerType = GetTriggerType(InputBindings);
         }
 
         public override string PathToAssembly { get; }
@@ -53,6 +55,23 @@ namespace Microsoft.Azure.Functions.Worker.Definition
         public override IImmutableDictionary<string, BindingMetadata> OutputBindings { get; }
 
         public override ImmutableArray<FunctionParameter> Parameters { get; }
+
+        public override TriggerType? TriggerType { get; }
+
+
+        private TriggerType? GetTriggerType(IImmutableDictionary<string, BindingMetadata> inputBindings)
+        {
+            var triggerTypeBinding = inputBindings.Values.FirstOrDefault(b => b.Type.EndsWith("Trigger"));
+            var triggerTypeName = triggerTypeBinding?.Type;
+
+            return triggerTypeName switch
+            {
+                "httpTrigger" => Worker.TriggerType.HttpTrigger,
+                "queueTrigger" => Worker.TriggerType.QueueTrigger,
+                // Could consider a source gen to generate this switch code block.
+                _ => null,
+            };
+        }
 
         private ImmutableDictionary<string, object> GetAdditionalPropertiesDictionary(ParameterInfo parameterInfo)
         {
